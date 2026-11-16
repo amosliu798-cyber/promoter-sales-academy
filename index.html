@@ -338,7 +338,7 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
   /* L: English lessons for the promoter side. Z: Chinese master for the admin side. Same numbers, same order. */
   var byNo = function (a, b) { return a.no - b.no; };
   var Z = D.lessons.slice().sort(byNo), L = D.en.lessons.slice().sort(byNo);
-  var ADMIN = { cc: '+20', num: '1000000000', pin: '2468' };
+  var ADMIN = { user: 'admin', pin: '1234' };
   var KEY = 'psa10-progress-v1', RD = D.course.recall_days, NSTEP = RD.length, MAXR = D.course.max_recall_per_day, TT = D.course.task_target;
   var INTER = JSON.parse(document.getElementById('inter-data').textContent);
   var REP_TARGET = 6, HOLD = 7, STREAK = 3, NEW_MIN = 5, IDLE_DAYS = 2, PILOT_DAY = 45;
@@ -379,7 +379,7 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
       mastery: '口诀掌握度', mastery_def: '按回忆正确率从低到高排列，最上面的一句最弱。已掌握 = 最近连续 3 次回忆答对；还需要管理者在门店看到这个动作。', acc_of: '答对 {a}/{b} 次', m_people: '已掌握 {n} 人', no_ans: '还没有作答',
       people_def: '按未学天数从多到少排列，还没开始的排在最前。',
       people: '人员查询', search: '按姓名搜索', no_match: '没有找到这个名字。', local: '本机体验者', real: '真实作答', upto: '学到第 {n} 课', upto0: '还没开始', last: '最近学习', d0: '今天', d1: '昨天', dn: '{n} 天前', p_lessons: '各课状态', sp_yes: '说出来了', sp_no: '还不熟', sp_none: '未练', days_idle0: '今天已学', days_idle1: '昨天学过', p_upto: '学到', c_no: '未学', c_build: '{n}/{m}', c_ok: '掌握', c_hold: '保持',
-      name_zh: '姓名', dbg_h: '调试工具（仅管理员测试账号可见）', dbg_state: '本账号进度：已学 {n}/{m} 课；模拟日期偏移 {d} 天；存档：{s}', dbg_free_off: '解除每天一课限制', dbg_free_on: '已解除每天一课限制', dbg_day: '模拟到下一天', dbg_learnall: '标记全部已学', dbg_reset: '清空本账号进度', dbg_preview: '直接预览任意一课（★ 为互动版，预览不计入进度）：', dbg_note: '管理员测试账号：+20 1000000000，PIN 2468。用普通号码登录即为促销员视角，看不到管理端。', sync_local: '仅本机', sync_cloud: '云端已同步', sync_saving: '正在同步', sync_off: '仅本机'
+      name_zh: '姓名', dbg_h: '调试工具（仅管理员测试账号可见）', dbg_logout: '退出管理员账号', dbg_state: '本账号进度：已学 {n}/{m} 课；模拟日期偏移 {d} 天；存档：{s}', dbg_free_off: '解除每天一课限制', dbg_free_on: '已解除每天一课限制', dbg_day: '模拟到下一天', dbg_learnall: '标记全部已学', dbg_reset: '清空本账号进度', dbg_preview: '直接预览任意一课（★ 为互动版，预览不计入进度）：', dbg_note: '管理员测试账号：账户填 admin，PIN 填 1234（填在姓名栏或号码栏都可以）。用普通号码登录即为促销员视角，看不到后台。', sync_local: '仅本机', sync_cloud: '云端已同步', sync_saving: '正在同步', sync_off: '仅本机'
     }
   };
 
@@ -822,8 +822,12 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
     function set(id, input, msg) { var e = g('err-' + id); e.hidden = !msg; e.textContent = msg || ''; if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false'); if (msg && !bad) bad = input; }
     var cc = g('login-cc').value.trim(), raw = g('login-num').value, digits = raw.replace(/[\s\-().]/g, ''), pin = g('login-pin').value;
     var name = g('login-name').value.replace(/\s+/g, ' ').trim();
-    var adminTry = cc === ADMIN.cc && digits.replace(/^0+/, '') === ADMIN.num;
-    if (adminTry) { digits = ADMIN.num; if (pin !== ADMIN.pin) { set('pin', g('login-pin'), t('e_admin_pin')); if (bad) { try { bad.focus(); } catch (e) {} } return; } if (!name) name = 'Admin (test)'; }
+    /* Admin test account: type admin as the account (name or number field) and PIN 1234. Promoters sign in as before. */
+    if (raw.trim().toLowerCase() === ADMIN.user || name.toLowerCase() === ADMIN.user) {
+      if (pin !== ADMIN.pin) { set('pin', g('login-pin'), t('e_admin_pin')); if (bad) { try { bad.focus(); } catch (e) {} } return; }
+      S.auth = Object.assign({}, S.auth, { in: true, name: 'Admin', role: 'admin', pinSet: S.auth.pinSet });
+      U.mode = 'admin'; save(); U.tab = 'today'; U.flow = null; go(); return;
+    }
     set('name', g('login-name'), name.length >= 2 && name.length <= 40 ? '' : t('e_name', { n: name.length }));
     set('cc', g('login-cc'), /^\+\d{1,3}$/.test(cc) ? '' : t('e_cc'));
     set('num', g('login-num'), !/^\d*$/.test(digits) ? t('e_num_chars') : digits.length < 8 || digits.length > 15 ? t('e_num_len', { n: digits.length }) : '');
@@ -831,9 +835,7 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
     if (first) set('pin2', g('login-pin2'), !/^\d{4}$/.test(pin) || g('login-pin2').value === pin ? '' : t('e_pin2'));
     if (bad) { try { bad.focus(); } catch (e) {} return; }
     /* Prototype: the number is remembered on this device (and in the viewer's private cloud copy) so a returning user only types the PIN. The PIN is never stored. */
-    var isAdmin = cc === ADMIN.cc && digits === ADMIN.num && pin === ADMIN.pin;
-    S.auth = { in: true, name: isAdmin ? 'Admin (test)' : name, cc: cc, last4: digits.slice(-4), num: digits, consent: g('login-consent').checked, pinSet: true, role: isAdmin ? 'admin' : 'promoter' };
-    if (isAdmin) U.mode = 'admin';
+    S.auth = { in: true, name: name, cc: cc, last4: digits.slice(-4), num: digits, consent: g('login-consent').checked, pinSet: true, role: 'promoter' };
     save(); U.tab = 'today'; U.flow = null; go();
   }
   function maskNum(cc, last4) { return cc + ' \u2022\u2022\u2022 \u2022\u2022\u2022 ' + last4; }
@@ -997,7 +999,7 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
       '<div class="two"><button class="btn line" data-act="dbg-free" aria-pressed="' + !!S.debugFree + '">' + esc(t(S.debugFree ? 'dbg_free_on' : 'dbg_free_off')) + '</button><button class="btn line" data-act="sim">' + esc(t('dbg_day')) + '</button></div>' +
       '<div class="two"><button class="btn line" data-act="dbg-learnall">' + esc(t('dbg_learnall')) + '</button><button class="btn line" data-act="dbg-reset">' + esc(t('dbg_reset')) + '</button></div>' +
       '<p class="small">' + esc(t('dbg_preview')) + '</p><div class="dbg-lessons">' + L.map(function (l) { return '<button class="btn line" data-act="dbg-open" data-arg="' + l.no + '">' + l.no + (inter(l.no) ? ' ★' : '') + '</button>'; }).join('') + '</div>' +
-      '<p class="fine">' + esc(t('dbg_note')) + '</p></section>';
+      '<p class="fine">' + esc(t('dbg_note')) + '</p><button class="btn line wide" data-act="logout">' + esc(t('dbg_logout')) + '</button></section>';
   }
   function viewAdmin() {
     var R = roster(), N = R.length, tot = 0, cells = 0;
@@ -1190,7 +1192,7 @@ textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize:
       save(); render();
     },
     consent: function () { S.auth.consent = !S.auth.consent; save(); render(); },
-    logout: function () { S.auth.in = false; U.flow = null; U.tab = 'today'; save(); go(); },
+    logout: function () { if (S.auth.role === 'admin') { S.auth.role = 'promoter'; S.auth.name = S.auth.num ? S.auth.name : ''; if (S.auth.name === 'Admin') S.auth.name = ''; } S.auth.in = false; U.mode = 'app'; U.flow = null; U.tab = 'today'; save(); go(); },
     'pin-reset': function () { var m = document.getElementById('pin-reset-msg'); if (m) m.hidden = false; },
     sim: function () { S.dayOffset++; save(); render(); },
     'reset-ask': function () { U.resetAsk = true; render(); },
