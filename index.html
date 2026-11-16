@@ -1,0 +1,1233 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"></head><body><title>促销员销售学院</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Design plan.
+   Concept: the shelf label. Hard-edged rows on a cool counter surface. The yellow price tag
+   carries the one line a promoter must remember today (the day's rule); nothing else gets it.
+   Type: system UI faces only, no web fonts; system mono for counts and figures. */
+:root {
+  --ground: #E7EDEA; --surface: #F6F9F7; --sunk: #D8E2DD; --ink: #10251F; --ink-2: #465B53; --rule: #BCCAC4;
+  --action: #0A6A5C; --action-ink: #FFFFFF; --action-soft: #CDE5DD; --focus: #0A6A5C;
+  --tag: #FFC71E; --tag-ink: #1C1A0C;
+  --good: #0E6F44; --good-soft: #D1EADC; --mid: #795000; --mid-soft: #F5E3BE; --bad: #A9281F; --bad-soft: #F7D9D5;
+  --stage: #14322C; --stage-2: #1C4239; --stage-rule: #2C5A4F; --stage-ink: #EEF5F2; --stage-ink-2: #B7CCC4;
+  --skin: #C68E62; --skin-2: #A87248; --hair: #21170F; --coat: #22344F; --blouse: #F1F1E8; --shirt: #4F7FA8; --shirt-2: #3E6A90;
+  --font-ui: system-ui, -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+  --font-data: ui-monospace, "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+  --t-xs: 12.5px; --t-sm: 14px; --t-md: 16px; --t-lg: 19px; --t-xl: 24px; --t-2xl: 32px;
+  --leading: 1.55; --r: 3px; --tabbar: 62px; --col: 430px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #0E1917; --surface: #162421; --sunk: #213330; --ink: #E6EFEB; --ink-2: #A3B8B0; --rule: #33493F;
+  --action: #40C9B1; --action-ink: #05201A; --action-soft: #17403A; --focus: #FFD043;
+  --tag: #FFD043; --tag-ink: #1C1A0C;
+  --good: #5DD09B; --good-soft: #143A2A; --mid: #E8B650; --mid-soft: #3C2F12; --bad: #FF9A90; --bad-soft: #47201C;
+  --stage: #0B1F1B; --stage-2: #123029; --stage-rule: #24493F; --stage-ink: #EEF5F2; --stage-ink-2: #AFC6BD;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #0E1917; --surface: #162421; --sunk: #213330; --ink: #E6EFEB; --ink-2: #A3B8B0; --rule: #33493F;
+  --action: #40C9B1; --action-ink: #05201A; --action-soft: #17403A; --focus: #FFD043;
+  --tag: #FFD043; --tag-ink: #1C1A0C;
+  --good: #5DD09B; --good-soft: #143A2A; --mid: #E8B650; --mid-soft: #3C2F12; --bad: #FF9A90; --bad-soft: #47201C;
+  --stage: #0B1F1B; --stage-2: #123029; --stage-rule: #24493F; --stage-ink: #EEF5F2; --stage-ink-2: #AFC6BD;
+  color-scheme: dark }
+
+[hidden] { display: none !important; }
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-ui); font-size: var(--t-md); line-height: var(--leading); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+h1, h2, h3, p, ul, ol, dl, dd { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+h1 { font-size: var(--t-xl); line-height: 1.25; font-weight: 700; text-wrap: balance; }
+h2 { font-size: var(--t-lg); line-height: 1.3; font-weight: 700; text-wrap: balance; }
+h3 { font-size: var(--t-md); font-weight: 600; }
+h1:focus, h2:focus { outline: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; text-align: start; }
+button[disabled] { cursor: not-allowed; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+svg { display: block; flex: none; }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.muted { color: var(--ink-2); }
+.small { font-size: var(--t-sm); }
+.fine { font-size: var(--t-xs); color: var(--ink-2); }
+.stack { display: flex; flex-direction: column; gap: 12px; }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.spread { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+
+/* Top bar */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--rule); }
+.topbar.static { position: static; }
+.topbar-in { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-block: 6px; max-width: 1180px; margin-inline: auto; }
+.seg-ctl { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--r); background: var(--ground); flex: none; }
+.seg-ctl button { min-height: 44px; min-width: 44px; padding-inline: 12px; font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); text-align: center; white-space: nowrap; }
+.seg-ctl button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.brand { font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); text-align: end; min-width: 0; }
+
+/* Promoter column */
+.col { max-width: var(--col); margin-inline: auto; padding-block: 16px calc(var(--tabbar) + 24px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 24px; }
+.col.flow { padding-block-end: calc(24px + env(safe-area-inset-bottom, 0px)); gap: 14px; }
+.tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--rule); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.tabs { max-width: calc(var(--col) - 32px); margin-inline: auto; display: grid; grid-template-columns: repeat(3, 1fr); }
+.tabs button { min-height: var(--tabbar); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: var(--t-xs); font-weight: 600; color: var(--ink-2); text-align: center; border-block-start: 3px solid transparent; }
+.tabs button[aria-current="page"] { color: var(--action); border-block-start-color: var(--action); }
+
+/* Buttons, chips */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px 18px; border-radius: var(--r); background: var(--action); color: var(--action-ink); font-weight: 700; text-align: center; }
+.btn.line { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+.btn.wide { width: 100%; }
+.btn[disabled] { background: var(--sunk); color: var(--ink-2); box-shadow: none; }
+.btn.demo { background: transparent; color: var(--mid); box-shadow: none; border: 1.5px dashed var(--mid); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: var(--t-xs); font-weight: 700; padding: 3px 8px; border-radius: 2px; max-width: 100%; }
+.chip.tagc { background: var(--tag); color: var(--tag-ink); }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.mid { background: var(--mid-soft); color: var(--mid); }
+.chip.bad { background: var(--bad-soft); color: var(--bad); }
+.chip.plain { background: var(--sunk); color: var(--ink-2); }
+.chip .ic { width: 14px; height: 14px; }
+.icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--r); flex: none; }
+.icon-btn:hover { background: var(--sunk); }
+.eyebrow { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+
+/* Price tag: the rule of the day */
+.tag { --hole: var(--ground); position: relative; background: var(--tag); color: var(--tag-ink); padding-block: 14px; padding-inline: 38px 18px; clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 calc(100% - 16px), 0 16px); }
+.tag::before { content: ""; position: absolute; left: 14px; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; background: var(--hole); }
+.tag .eyebrow { color: inherit; }
+.tag-line { font-size: var(--t-xl); font-weight: 700; line-height: 1.3; text-wrap: balance; }
+.tag.big { padding-block: 34px; }
+.tag.big .tag-line { font-size: var(--t-2xl); }
+
+/* Login */
+.demo-note { border: 1.5px dashed var(--mid); background: var(--mid-soft); color: var(--ink); padding: 10px 12px; font-size: var(--t-sm); font-weight: 600; }
+.fld { display: flex; flex-direction: column; gap: 6px; }
+.fld label { font-weight: 600; }
+.fld input[type="text"], .fld input[type="tel"], .fld input[type="password"] { min-height: 48px; padding: 8px 12px; background: var(--surface); border: 1.5px solid var(--ink-2); border-radius: var(--r); width: 100%; min-width: 0; font-size: var(--t-lg); }
+.fld input[aria-invalid="true"] { border-color: var(--bad); border-width: 2.5px; }
+.numrow { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; }
+.pinbox { max-width: 180px; letter-spacing: .3em; }
+.err { color: var(--bad); font-size: var(--t-sm); font-weight: 600; }
+.check { display: flex; gap: 12px; align-items: center; min-height: 48px; cursor: pointer; font-weight: 600; }
+.check input { width: 24px; height: 24px; flex: none; accent-color: var(--action); }
+.switch { display: flex; justify-content: space-between; align-items: center; gap: 12px; width: 100%; min-height: 48px; }
+.switch .knob { flex: none; width: 52px; height: 30px; border-radius: 15px; background: var(--sunk); border: 1.5px solid var(--ink-2); position: relative; }
+.switch .knob::after { content: ""; position: absolute; top: 3px; left: 3px; width: 21px; height: 21px; border-radius: 50%; background: var(--ink-2); }
+.switch[aria-checked="true"] .knob { background: var(--action); border-color: var(--action); }
+.switch[aria-checked="true"] .knob::after { left: 25px; background: var(--action-ink); }
+
+/* Today */
+.sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-block-end: 6px; border-block-end: 2px solid var(--ink); margin-block-end: 12px; }
+.lesson-row { display: flex; gap: 12px; align-items: flex-start; }
+.node { width: 36px; height: 36px; border-radius: var(--r); display: grid; place-items: center; font-family: var(--font-data); font-weight: 700; background: var(--sunk); color: var(--ink-2); flex: none; }
+.node.next { background: var(--tag); color: var(--tag-ink); }
+.node.done { background: var(--action); color: var(--action-ink); }
+.pips { display: flex; gap: 4px; }
+.pips i { flex: 1; height: 12px; background: var(--sunk); display: block; }
+.pips i.on { background: var(--action); }
+.task-text { background: var(--surface); border-inline-start: 4px solid var(--action); padding: 12px 14px; font-weight: 600; }
+
+/* Lesson flow */
+.flow-head { display: flex; align-items: center; gap: 8px; }
+.flow-head h1 { font-size: var(--t-md); line-height: 1.3; }
+.segs { display: flex; gap: 3px; }
+.segs i { flex: 1; height: 5px; background: var(--sunk); display: block; }
+.segs i.on { background: var(--action); }
+.segs i.cur { background: var(--tag); box-shadow: 0 0 0 1px var(--ink); }
+.stage { position: relative; overflow: hidden; background: var(--stage); color: var(--stage-ink); padding: 12px 12px 14px; display: flex; flex-direction: column; gap: 8px;
+  background-image: repeating-linear-gradient(0deg, transparent 0 56px, var(--stage-rule) 56px 58px); }
+.stage-meta { display: flex; justify-content: space-between; gap: 8px; font-size: var(--t-xs); color: var(--stage-ink-2); }
+.figure { width: min(58vw, 210px); margin-inline: auto; }
+.f-skin { fill: var(--skin); } .f-skin2 { fill: var(--skin-2); } .f-hair { fill: var(--hair); } .f-shirt { fill: var(--shirt); } .f-shirt2 { fill: var(--shirt-2); }
+.s-face { fill: none; stroke: var(--hair); stroke-width: 3.5; stroke-linecap: round; }
+.stage .tag { --hole: var(--stage); margin-block-start: -22px; }
+.panel { background: var(--surface); padding: 18px 16px; display: flex; flex-direction: column; gap: 10px; min-height: 200px; }
+.panel .big { font-size: var(--t-lg); font-weight: 600; line-height: 1.55; }
+.panel.dont { border-block-start: 5px solid var(--bad); }
+.panel.say { border-block-start: 5px solid var(--good); }
+.extra { border-block-start: 1px solid var(--rule); padding-block-start: 10px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Rules list */
+.rules li { border-block-end: 1px solid var(--rule); }
+.rule-item { display: flex; gap: 12px; align-items: flex-start; width: 100%; padding-block: 12px; min-height: 64px; }
+.rule-item.locked { color: var(--ink-2); }
+.rule-item strong { display: block; font-size: var(--t-md); line-height: 1.45; }
+.rule-item .ch { color: var(--ink-2); margin-block-start: 6px; }
+
+/* Me */
+.stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; background: var(--rule); border: 2px solid var(--rule); }
+.stats div { background: var(--surface); padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.stats strong { font-family: var(--font-data); font-size: var(--t-2xl); line-height: 1.15; }
+.rep { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 4px 8px; align-items: center; font-size: var(--t-sm); }
+.rep .bar { grid-column: 2 / -1; }
+.bar { height: 8px; background: var(--sunk); }
+.bar b { display: block; height: 100%; background: var(--action); max-width: 100%; }
+.bar.red b { background: var(--bad); }
+.log li { display: flex; gap: 12px; padding-block: 9px; border-block-end: 1px solid var(--rule); font-size: var(--t-sm); }
+.log time { color: var(--ink-2); flex: none; min-width: 64px; }
+.today-list li { display: flex; justify-content: space-between; gap: 12px; padding-block: 8px; border-block-end: 1px solid var(--rule); font-size: var(--t-sm); }
+
+/* Admin */
+.admin { max-width: 1180px; margin-inline: auto; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 28px; }
+.banner { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 15; background: repeating-linear-gradient(-45deg, var(--tag) 0 12px, var(--mid-soft) 12px 24px); color: var(--tag-ink); padding: 10px 12px; font-weight: 700; display: flex; }
+.banner span { background: var(--tag); padding: 4px 10px; }
+.a-sec > h2 { padding-block-end: 8px; border-block-end: 2px solid var(--ink); margin-block-end: 14px; }
+.a-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 28px 40px; }
+.a-grid > * { min-width: 0; }
+.kpi { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 18px 28px; }
+.kpi strong { display: block; font-family: var(--font-data); font-size: var(--t-2xl); line-height: 1.15; }
+.scroll-x { overflow-x: auto; }
+table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: var(--t-sm); }
+th, td { padding: 9px 8px; text-align: start; border-block-end: 1px solid var(--rule); white-space: nowrap; }
+th { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+td.n, th.n { text-align: end; }
+td.n { font-family: var(--font-data); }
+th button { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-weight: 700; color: var(--ink); }
+.field { min-height: 44px; padding: 8px 10px; background: var(--surface); border: 1.5px solid var(--rule); border-radius: var(--r); max-width: 100%; }
+input.field { width: 100%; }
+textarea.field { width: 100%; min-height: 150px; font-size: var(--t-sm); resize: vertical; line-height: 1.6; }
+.rank li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 4px 10px; padding-block: 10px; border-block-end: 1px solid var(--rule); font-size: var(--t-sm); align-items: baseline; }
+.rank .bar { grid-column: 2 / -1; }
+.people { max-height: 320px; overflow-y: auto; border-block-end: 1px solid var(--rule); margin-block-start: 8px; }
+.person { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 6px 2px; border-block-start: 1px solid var(--rule); font-size: var(--t-sm); }
+.person[aria-pressed="true"] { background: var(--action-soft); }
+.detail { padding: 12px 0 0; display: flex; flex-direction: column; gap: 10px; }
+.detail dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; font-size: var(--t-sm); }
+.detail dt { color: var(--ink-2); }
+.cells { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.cells div { padding: 6px 4px; background: var(--sunk); color: var(--ink-2); font-size: var(--t-xs); text-align: center; line-height: 1.35; min-width: 0; }
+.cells div.c1 { background: var(--action-soft); color: var(--ink); }
+.cells div.c2 { background: var(--action); color: var(--action-ink); }
+.empty-so { border: 1.5px dashed var(--rule); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.so-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.so-groups div { background: var(--sunk); padding: 10px; font-size: var(--t-sm); }
+.so-groups strong { display: block; font-family: var(--font-data); font-size: var(--t-xl); color: var(--ink-2); }
+
+/* ---------- Interactive lesson (video + questions, Duolingo-style loop) ---------- */
+.i-top { display: flex; align-items: center; gap: 10px; }
+.i-bar { flex: 1; height: 12px; background: var(--sunk); border-radius: 6px; overflow: hidden; }
+.i-bar b { display: block; height: 100%; background: var(--action); border-radius: 6px; transition: width .35s ease; }
+.i-xp { font-family: var(--font-data); font-size: var(--t-sm); font-weight: 700; color: var(--mid); display: inline-flex; align-items: center; gap: 4px; flex: none; }
+.i-card { display: flex; flex-direction: column; gap: 14px; }
+.i-q { font-size: var(--t-lg); font-weight: 700; line-height: 1.4; text-wrap: pretty; }
+.i-redo { font-size: var(--t-xs); font-weight: 700; color: var(--mid); }
+.vid { position: relative; background: var(--stage); aspect-ratio: 3 / 4; width: 100%; max-height: 62vh; margin-inline: auto; overflow: hidden; }
+.vid video { width: 100%; height: 100%; object-fit: contain; display: block; background: var(--stage); }
+.vid-play { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8, 20, 17, .45); color: #fff; font-weight: 700; gap: 10px; align-content: center; }
+.vid-play span.ring { width: 72px; height: 72px; border-radius: 50%; background: var(--tag); color: var(--tag-ink); display: grid; place-items: center; }
+.vid-play[hidden] { display: none; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; text-align: start; width: 100%; padding: 14px; background: var(--surface); border-radius: 10px; box-shadow: inset 0 0 0 2px var(--rule), 0 3px 0 var(--rule); font-size: var(--t-md); line-height: 1.45; }
+.opt .k { flex: none; width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; font-family: var(--font-data); font-size: var(--t-xs); font-weight: 700; box-shadow: inset 0 0 0 1.5px var(--rule); color: var(--ink-2); }
+.opt[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--action), 0 3px 0 var(--action); background: var(--action-soft); }
+.opt[aria-pressed="true"] .k { box-shadow: inset 0 0 0 1.5px var(--action); color: var(--action); }
+.opt.right { box-shadow: inset 0 0 0 2px var(--good), 0 3px 0 var(--good); background: var(--good-soft); }
+.opt.wrong { box-shadow: inset 0 0 0 2px var(--bad), 0 3px 0 var(--bad); background: var(--bad-soft); }
+.opt:disabled { cursor: default; }
+.ans-line { min-height: 112px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding: 10px 0; border-block: 1.5px solid var(--rule); background: repeating-linear-gradient(to bottom, transparent 0 51px, var(--rule) 51px 52.5px); }
+.bank { display: flex; flex-wrap: wrap; gap: 8px; }
+.tile { padding: 9px 13px; border-radius: 10px; background: var(--surface); box-shadow: inset 0 0 0 2px var(--rule), 0 3px 0 var(--rule); font-weight: 600; font-size: var(--t-md); }
+.tile.used { visibility: hidden; }
+.tile.slot { visibility: visible; background: var(--sunk); color: transparent; box-shadow: none; }
+.mic-wrap { display: grid; justify-items: center; gap: 10px; padding-block: 8px; }
+.mic { width: 92px; height: 92px; border-radius: 50%; background: var(--action); color: var(--action-ink); display: grid; place-items: center; box-shadow: 0 5px 0 color-mix(in srgb, var(--action) 60%, #000); }
+.mic .ic { width: 38px; height: 38px; }
+.mic[data-state="listening"] { background: var(--bad); box-shadow: 0 0 0 8px color-mix(in srgb, var(--bad) 25%, transparent), 0 5px 0 color-mix(in srgb, var(--bad) 60%, #000); animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--bad) 10%, transparent), 0 5px 0 color-mix(in srgb, var(--bad) 60%, #000); } }
+.heard { min-height: 80px; padding: 12px 14px; background: var(--surface); border-radius: 10px; font-size: var(--t-md); line-height: 1.5; }
+.heard .part { color: var(--ink-2); }
+.heard textarea { width: 100%; min-height: 72px; border: 0; background: transparent; color: var(--ink); resize: vertical; font: inherit; }
+.heard textarea:focus { outline: none; }
+.checks { display: flex; flex-direction: column; gap: 6px; }
+.checks li { list-style: none; display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: var(--t-sm); }
+.checks li .ic { width: 18px; height: 18px; flex: none; }
+.checks li.ok { color: var(--good); } .checks li.no { color: var(--bad); }
+.sheet { position: sticky; bottom: 0; margin-inline: -16px; padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--ground); border-block-start: 2px solid var(--rule); display: flex; flex-direction: column; gap: 10px; z-index: 5; }
+.sheet.good { background: var(--good-soft); border-color: var(--good); }
+.sheet.bad { background: var(--bad-soft); border-color: var(--bad); }
+.sheet h2 { font-size: var(--t-lg); display: flex; align-items: center; gap: 8px; }
+.sheet.good h2 { color: var(--good); } .sheet.bad h2 { color: var(--bad); }
+.sheet .btn.ok { background: var(--good); color: #fff; } .sheet.bad .btn.ok { background: var(--bad); color: #fff; }
+.sheet p { font-size: var(--t-sm); line-height: 1.5; }
+.sheet .lbl { font-weight: 700; }
+.i-end { text-align: center; display: grid; gap: 14px; justify-items: center; }
+.i-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.i-stat { border-radius: 10px; padding: 12px; background: var(--surface); box-shadow: inset 0 0 0 2px var(--rule); }
+.i-stat b { display: block; font-family: var(--font-data); font-size: var(--t-xl); }
+.i-stat span { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+.jq { padding: 22px 18px; background: var(--surface); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--rule), 0 4px 0 var(--rule); font-size: var(--t-lg); font-weight: 600; line-height: 1.45; min-height: 130px; display: grid; align-content: center; }
+.jq.right { box-shadow: inset 0 0 0 2px var(--good), 0 4px 0 var(--good); background: var(--good-soft); }
+.jq.wrong { box-shadow: inset 0 0 0 2px var(--bad), 0 4px 0 var(--bad); background: var(--bad-soft); animation: shake .36s ease-in-out; }
+.jcount { display: flex; gap: 6px; }
+.jcount i { flex: 1; height: 6px; border-radius: 3px; background: var(--sunk); }
+.jcount i.ok { background: var(--good); } .jcount i.no { background: var(--bad); } .jcount i.cur { background: var(--tag); }
+.jbtns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.jbtn { min-height: 64px; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: var(--t-lg); }
+.jbtn .ic { width: 24px; height: 24px; }
+.jbtn.bad { background: var(--bad-soft); color: var(--bad); box-shadow: inset 0 0 0 2px var(--bad), 0 4px 0 var(--bad); }
+.jbtn.good { background: var(--good-soft); color: var(--good); box-shadow: inset 0 0 0 2px var(--good), 0 4px 0 var(--good); }
+.jbtn:active { transform: translateY(3px); box-shadow: none; }
+.method { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.method div { background: var(--surface); border-radius: 10px; padding: 10px; box-shadow: inset 0 0 0 1.5px var(--rule); }
+.method b { display: block; font-size: var(--t-sm); }
+.method span { font-size: var(--t-xs); color: var(--ink-2); line-height: 1.35; display: block; margin-block-start: 2px; }
+.cust { background: var(--surface); border-radius: 14px; box-shadow: inset 0 0 0 2px var(--rule); padding: 16px; display: grid; gap: 10px; }
+.cust-h { display: flex; gap: 12px; align-items: center; }
+.cust-av { width: 52px; height: 52px; border-radius: 50%; background: var(--stage); color: var(--stage-ink); display: grid; place-items: center; font-weight: 800; font-size: var(--t-lg); flex: none; }
+.cust-who { font-size: var(--t-sm); line-height: 1.45; }
+.cust ul { display: grid; gap: 6px; }
+.cust li { list-style: none; display: flex; gap: 8px; align-items: flex-start; font-size: var(--t-sm); line-height: 1.45; }
+.cust li .ic { width: 18px; height: 18px; flex: none; margin-block-start: 1px; color: var(--action); }
+.intents { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.intent { min-height: 56px; border-radius: 10px; padding: 6px; font-weight: 700; font-size: var(--t-sm); background: var(--surface); box-shadow: inset 0 0 0 2px var(--rule), 0 3px 0 var(--rule); line-height: 1.25; }
+.intent .meter { display: flex; gap: 3px; justify-content: center; margin-block-end: 4px; }
+.intent .meter i { width: 14px; height: 5px; border-radius: 2px; background: var(--rule); }
+.intent .meter i.on { background: var(--action); }
+.intent.right { box-shadow: inset 0 0 0 2px var(--good), 0 3px 0 var(--good); background: var(--good-soft); }
+.intent.close { box-shadow: inset 0 0 0 2px var(--mid), 0 3px 0 var(--mid); background: var(--mid-soft); }
+.intent.wrong { box-shadow: inset 0 0 0 2px var(--bad), 0 3px 0 var(--bad); background: var(--bad-soft); }
+.intent.truth { box-shadow: inset 0 0 0 2px var(--good), 0 3px 0 var(--good); }
+.opt.ok2 { box-shadow: inset 0 0 0 2px var(--mid), 0 3px 0 var(--mid); background: var(--mid-soft); }
+.grade { font-size: var(--t-xs); font-weight: 800; padding: 2px 7px; border-radius: 4px; margin-inline-start: auto; flex: none; align-self: flex-start; }
+.grade.g2 { background: var(--good); color: #fff; } .grade.g1 { background: var(--mid); color: #fff; } .grade.g0 { background: var(--bad); color: #fff; }
+.sheet.mid { background: var(--mid-soft); border-color: var(--mid); }
+.sheet.mid h2 { color: var(--mid); } .sheet.mid .btn.ok { background: var(--mid); color: #fff; }
+.rstep { font-size: var(--t-sm); font-weight: 800; }
+.sync { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); padding: 4px 8px; border-radius: 6px; background: var(--sunk); }
+.sync[data-sync="cloud"] { color: var(--good); background: var(--good-soft); }
+.dbg-lessons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.dbg-lessons .btn { min-height: 40px; padding: 0; }
+[data-debug] { box-shadow: inset 0 0 0 2px var(--mid); }
+/* Feedback effects */
+.sheet { animation: sheet-in .22s ease-out; }
+@keyframes sheet-in { from { transform: translateY(24px); opacity: 0; } }
+.opt.wrong { animation: shake .36s ease-in-out; }
+@keyframes shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.opt.right.pop, .jq.pop, .sheet.good h2 .ic { animation: pop .38s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pop { 0% { transform: scale(.85); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
+.i-xp.bump { animation: bump .5s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes bump { 40% { transform: scale(1.35); color: var(--good); } }
+.xp-fly { position: fixed; z-index: 30; pointer-events: none; font-family: var(--font-data); font-weight: 800; font-size: var(--t-lg); color: var(--good); animation: xp-fly .9s ease-out forwards; }
+@keyframes xp-fly { from { transform: translate(-50%, 0) scale(.8); opacity: 0; } 20% { opacity: 1; transform: translate(-50%, -8px) scale(1.15); } to { transform: translate(-50%, -54px) scale(1); opacity: 0; } }
+.confetti { position: fixed; inset: 0; pointer-events: none; z-index: 29; overflow: hidden; }
+.confetti i { position: absolute; width: 9px; height: 14px; border-radius: 2px; opacity: 0; animation: burst var(--t, .95s) cubic-bezier(.2, .7, .4, 1) forwards; }
+@keyframes burst { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); } }
+.i-end h1 { animation: pop .5s cubic-bezier(.3, 1.6, .5, 1); }
+.snd { color: var(--ink-2); }
+.snd[aria-pressed="false"] { opacity: .55; }
+@media (prefers-reduced-motion: reduce) { .confetti, .xp-fly { display: none; } }
+@media (prefers-reduced-motion: reduce) { .mic[data-state="listening"] { animation: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<div class="topbar"><div class="topbar-in gutter" id="topbar"></div></div>
+<main id="view"></main>
+<nav class="tabbar" id="tabbar" hidden></nav>
+
+<script type="application/json" id="course-data">{"course":{"title":"基础销售十个动作","intro":"10 节课只练 10 个基础销售动作。每节一个场景、一句口诀、一个门店任务。","greeting":"Welcome to Xiaomi","recall_days":[1,3,7,14,30],"max_recall_per_day":3,"task_target":3},"lessons":[{"no":1,"code":"A1","title":"主动迎接","moment":"顾客走近小米专区","scene":"顾客走进多品牌店，看了几个品牌的柜台，走近小米专区。","dont":"低头看手机，等顾客开口。或者上来就问“要买手机吗？”，顾客只会回答“随便看看”。","say":"“Welcome to Xiaomi！您今天想看拍照好一点的，还是电池耐用一点的？”","extra":[{"label":"顾客说随便看看","text":"“好的，您慢慢看。这几台都可以拿起来试，有问题随时叫我。”然后留在附近，不跟着走。"}],"rule":"先说 Welcome to Xiaomi，再问一个他答得上的问题。","practice":"顾客走近柜台，还没有说话。说出你的第一句话。","task":"如果顾客走近小米专区，我就先说 Welcome to Xiaomi，再问一个二选一的问题。","recall":{"q":"顾客说“随便看看”，你接下来说什么、做什么？","a":"说“您慢慢看，这几台都可以拿起来试，有问题随时叫我”，然后留在附近，不跟着走。"}},{"no":2,"code":"B1","title":"三问定需求","moment":"“给我推荐一台”","scene":"顾客说：“我想换个手机，你给推荐一台。”","dont":"马上拿起主推机型：“这款最新，卖得最好。”","say":"先问三句：“您平时用手机做得最多的是什么？”“现在这台最让您头疼的是哪一点？”“您大概想看什么价位的？”","extra":[{"label":"顾客已点名机型","text":"直接拿给他，只补一句：“您看中它哪一点？”"}],"rule":"先问三句，再拿手机。","practice":"顾客说“给我推荐一台”。说出你的三个问题。","task":"如果顾客让我推荐，我就先问用途、最头疼的一点和价位。","recall":{"q":"三问分别问什么？","a":"平时用手机做得最多的是什么；现在这台最头疼的是哪一点；大概想看什么价位。"}},{"no":3,"code":"C1","title":"讲一个卖点，递到他手里","moment":"顾客说出一个需求","scene":"顾客说：“我的手机到下午就没电了。”","dont":"一口气背参数，把电池、屏幕、相机全讲一遍。","say":"“您说下午就没电，这台是大电池，所以白天您不用总惦记着充电。来，您拿着试试。”","extra":[{"label":"句式","text":"您说……，这台有……，所以您……。说完把手机递到顾客手里。"},{"label":"注意","text":"卖点只说产品资料上有的，不夸大。"}],"rule":"他说什么就讲什么，再递到他手里。","practice":"顾客说“我主要用来拍孩子”。用这个句式说一句，并说出你让他试什么。","task":"如果顾客说出一个需求，我就只讲对应的一个卖点，并让他上手试。","recall":{"q":"顾客说“手机总是卡”，你讲几个卖点？讲完做什么？","a":"只讲一个和“卡”对应的卖点，讲完把手机递到他手里让他试。"}},{"no":4,"code":"E3","title":"“这台多少钱”","moment":"“这台多少钱”","scene":"顾客指着一台手机：“这个多少钱？”","dont":"只报一个数字，然后沉默。或者不回答，反问“您预算多少？”","say":"“这台是 X 镑。您是自己用，还是给家人买？”","extra":[{"label":"也可以问","text":"“您现在用的是哪一款？”"}],"rule":"报完价，马上问一句。","practice":"顾客问“这个多少钱”。说出你报价之后接的那句话。","task":"如果顾客只问价，我就报完价马上问一个问题。","recall":{"q":"顾客问价时，哪两种做法会让对话结束？","a":"只报数字然后沉默；不回答价格，反问顾客预算。"}},{"no":5,"code":"E1","title":"先接住，再回应","moment":"顾客提出顾虑","scene":"顾客皱着眉说：“我听说这个牌子用久了会卡。”","dont":"立刻反驳：“不会的，那是以前的事。”","say":"“您是担心用久了会变慢，对吗？您现在这台是用了多久开始卡的？”","extra":[{"label":"三步","text":"听完不打断；用自己的话复述顾虑；问一个问题，然后再回应。"}],"rule":"先听完，复述一遍，再问一句。","practice":"顾客说“我朋友说这个牌子拍照不行”。说出你的复述和提问。","task":"如果顾客提出顾虑，我就先复述一遍，再问一句。","recall":{"q":"回应顾虑之前的三步是什么？","a":"听完不打断；复述顾客的顾虑；问一个问题。"}},{"no":6,"code":"E2","title":"“太贵了”","moment":"“太贵了”","scene":"顾客看完价格说：“太贵了。”","dont":"“这不贵，对面那款质量差。”或者马上说“我帮您申请便宜点”。","say":"“我理解，买手机是一笔不小的开支。您心里大概想在什么价位？还是看到了别的更合适的？”","extra":[{"label":"超出预算","text":"推荐低一档的机型，说清两台差在哪里。"},{"label":"觉得不值","text":"回到他说过的需求，讲一个卖点，让他上手试。"},{"label":"看到更便宜的","text":"用第 7 课的方法。"}],"rule":"先问清原因，再谈价格。","practice":"顾客说“太贵了”。说出你的第一句话和接着问的问题。","task":"如果顾客说贵，我就先说一句认可的话，再问一个问题。","recall":{"q":"“太贵了”背后常见的三种原因是什么？","a":"超出预算；觉得不值；看到了更便宜的。"}},{"no":7,"code":"E4","title":"“别家更便宜”","moment":"“别家更便宜”","scene":"顾客拿出手机：“网上这台便宜好几百。”或者说：“隔壁店报的价更低。”","dont":"“网上的都是假货。”或者“那您去那边买吧。”","say":"“货比三家是应该的。方便给我看一下吗？我帮您对一下是不是同一个配置。”","extra":[{"label":"核对三项","text":"是不是同一机型和内存；是不是正规渠道、有发票；今天能不能拿到。"},{"label":"然后","text":"说清在这里买能得到什么：现场验机，今天带走，有问题可以回来找我。没有官方政策时不跟价。"}],"rule":"先看清是不是同一样东西，再比。","practice":"顾客说“隔壁便宜两百”。说出你的第一句话和要核对的三项。","task":"如果顾客说别家更便宜，我就先请他给我看，再核对三项。","recall":{"q":"顾客说别家更便宜，要核对哪三项？","a":"是不是同一机型和内存；是不是正规渠道、有发票；今天能不能拿到。"}},{"no":8,"code":"D1","title":"“那个牌子更好”","moment":"“那个牌子更好”","scene":"顾客指着旁边的柜台：“那个牌子不是更好吗？”","dont":"“他们只是牌子贵，配置不如我们。”对方促销员就在旁边，顾客也不会因此更信任你。","say":"“那款也是不错的选择。您最看重它哪一点？”","extra":[{"label":"然后","text":"只比顾客说的这一项。看重拍照，就用样机现场拍一张让他自己看；看重品牌，不争论，请他上手体验这一台。"}],"rule":"不说别人差，只比他在意的那一项。","practice":"顾客说“我还是觉得那个牌子好”。说出你的回应和提问。","task":"如果顾客提到别的品牌，我就先肯定，再问他看中哪一点。","recall":{"q":"顾客提到别的品牌时，你不能说什么？应该问什么？","a":"不能说对方差；应该问“您最看重它哪一点？”"}},{"no":9,"code":"F3","title":"收到两台，问一句","moment":"顾客拿不定主意","scene":"顾客已经看了四五台，还是拿不定主意。","dont":"继续介绍第六台。或者说“您慢慢考虑”，然后走开。","say":"“您刚才说最看重电池和拍照。按这两点，这两台最合适：这台电池更大，这台拍照更好。您更倾向哪一台？”","extra":[{"label":"然后","text":"问完停下，等顾客回答，不要自己接话。"}],"rule":"收到两台，问一句，然后等。","practice":"顾客说过“预算有限，主要打游戏”，现在已经看了五台。说出你怎么收窄和提问。","task":"如果顾客看了三台以上还没决定，我就收到两台，问他更倾向哪一台。","recall":{"q":"问完“您更倾向哪一台”之后，你做什么？","a":"停下，等顾客回答，不自己接话。"}},{"no":10,"code":"G1","title":"开单前推荐一件配件","moment":"顾客选定了机型","scene":"顾客已经选定机型，你准备开单。","dont":"付款之后才问：“要不要买个壳？”或者不问就把配件加进单里。","say":"“您刚才说常在外面跑，屏幕最怕摔。壳和膜加起来 X 镑，要我现在一起帮您装好吗？”","extra":[{"label":"规则","text":"按顾客说过的需求推荐一件，先报价，他同意后才开单。"}],"rule":"开单前推荐一件，先报价再问。","practice":"顾客说过“经常出差”，现在选定了机型。说出你推荐什么、怎么说。","task":"如果顾客选定机型，我就在开单前按他的需求推荐一件配件。","recall":{"q":"推荐配件的时机是什么？开口先说什么？","a":"顾客选定机型后、开单之前；先说他提过的需求，再报价，然后问要不要。"}}],"en":{"course":{"title":"10 Basic Selling Moves","intro":"10 short lessons, 10 basic selling moves. Each lesson has one situation, one rule and one task for the shop floor.","greeting":"Welcome to Xiaomi"},"lessons":[{"no":1,"code":"A1","title":"Greet first","moment":"A customer walks up to the Xiaomi zone","scene":"A customer walks into the multi-brand store, looks at a few brand counters, then walks up to the Xiaomi zone.","dont":"Looking at your phone and waiting for the customer to speak. Or asking \"Do you want to buy a phone?\" The customer will only say \"Just looking.\"","say":"\"Welcome to Xiaomi! Are you looking for a better camera today, or a longer battery?\"","extra":[{"label":"If they say \"just looking\"","text":"\"Of course, take your time. You can pick up any of these phones and try them. Call me if you need anything.\" Then stay close, but don't follow them."}],"rule":"Say \"Welcome to Xiaomi\" first, then ask a question the customer can answer.","practice":"A customer walks up to the counter and hasn't said anything yet. Say your first sentence.","task":"If a customer walks up to the Xiaomi zone, I will say \"Welcome to Xiaomi\" first, then ask an either-or question.","recall":{"q":"The customer says \"just looking\". What do you say and do next?","a":"Say \"Take your time, you can pick up and try any of these phones, call me if you need anything.\" Then stay close, but don't follow them."}},{"no":2,"code":"B1","title":"Ask three questions","moment":"\"Recommend one for me\"","scene":"The customer says: \"I want a new phone. Recommend one for me.\"","dont":"Picking up the model you are pushing right away: \"This one is the newest and sells the best.\"","say":"Ask three questions first: \"What do you use your phone for most?\" \"What bothers you most about your current phone?\" \"What price range are you looking at?\"","extra":[{"label":"If they already named a model","text":"Hand it to them and ask just one question: \"What do you like about it?\""}],"rule":"Ask three questions before you pick up a phone.","practice":"The customer says \"Recommend one for me.\" Say your three questions.","task":"If a customer asks me to recommend a phone, I will first ask about use, the biggest problem, and price range.","recall":{"q":"What are the three questions?","a":"What do you use your phone for most? What bothers you most about your current phone? What price range are you looking at?"}},{"no":3,"code":"C1","title":"One need, one benefit, in their hand","moment":"The customer tells you a need","scene":"The customer says: \"My phone is dead by the afternoon.\"","dont":"Listing every spec in one breath: battery, screen, camera, everything.","say":"\"You said your phone is dead by the afternoon. This one has a big battery, so you don't have to think about charging during the day. Here, try it.\"","extra":[{"label":"Pattern","text":"You said ... This one has ... So you ... Then put the phone in the customer's hand."},{"label":"Note","text":"Only mention benefits that are in the product materials. Don't exaggerate."}],"rule":"Talk about what they told you, then put the phone in their hand.","practice":"The customer says \"I mostly take photos of my kids.\" Use the pattern in one sentence, and say what you will let them try.","task":"If a customer tells me a need, I will talk about one matching benefit only and let them try the phone.","recall":{"q":"The customer says \"my phone is always slow\". How many benefits do you talk about? What do you do after?","a":"Only one, the one that matches \"slow\". Then put the phone in their hand and let them try it."}},{"no":4,"code":"E3","title":"\"How much is this?\"","moment":"\"How much is this?\"","scene":"The customer points at a phone: \"How much is this one?\"","dont":"Giving a number and then going silent. Or not answering and asking back \"What's your budget?\"","say":"\"This one is X pounds. Is it for you, or for someone in your family?\"","extra":[{"label":"You can also ask","text":"\"Which phone are you using now?\""}],"rule":"Give the price, then ask one question right away.","practice":"The customer asks \"How much is this one?\" Say the sentence you add after the price.","task":"If a customer only asks the price, I will give the price and ask one question right away.","recall":{"q":"When a customer asks the price, which two reactions end the conversation?","a":"Giving a number and going silent. Not answering and asking for their budget instead."}},{"no":5,"code":"E1","title":"Catch it before you answer","moment":"The customer has a concern","scene":"The customer frowns and says: \"I heard this brand gets slow after a while.\"","dont":"Arguing right away: \"No, that was in the past.\"","say":"\"You're worried it will get slow over time, right? How long did you use your current phone before it got slow?\"","extra":[{"label":"Three steps","text":"Listen without interrupting. Repeat the concern in your own words. Ask one question, then answer."}],"rule":"Listen, repeat it back, then ask one question.","practice":"The customer says \"My friend says this brand's camera is bad.\" Say how you repeat it back and what you ask.","task":"If a customer has a concern, I will repeat it back first, then ask one question.","recall":{"q":"What are the three steps before you answer a concern?","a":"Listen without interrupting. Repeat the concern back. Ask one question."}},{"no":6,"code":"E2","title":"\"Too expensive\"","moment":"\"Too expensive\"","scene":"The customer looks at the price and says: \"That's too expensive.\"","dont":"\"It's not expensive, the one across the aisle is poor quality.\" Or saying right away \"Let me get you a discount.\"","say":"\"I understand, a phone is a big purchase. What price did you have in mind? Or did you see something that suits you better?\"","extra":[{"label":"Over budget","text":"Recommend the model one step down and explain clearly what is different."},{"label":"Not worth it to them","text":"Go back to the need they told you, talk about one benefit, and let them try it."},{"label":"They saw a cheaper one","text":"Use the method from Lesson 7."}],"rule":"Find out why first, then talk about price.","practice":"The customer says \"Too expensive.\" Say your first sentence and the question you ask next.","task":"If a customer says it's expensive, I will first show I understand, then ask one question.","recall":{"q":"What are the three common reasons behind \"too expensive\"?","a":"It is over their budget. They don't feel it is worth it. They saw a cheaper one."}},{"no":7,"code":"E4","title":"\"It's cheaper somewhere else\"","moment":"\"It's cheaper somewhere else\"","scene":"The customer takes out their phone: \"It's a few hundred cheaper online.\" Or says: \"The shop next door gave me a lower price.\"","dont":"\"Everything online is fake.\" Or \"Then go and buy it there.\"","say":"\"It's right to compare. May I have a look? Let me check if it's the same version.\"","extra":[{"label":"Check three things","text":"Is it the same model and memory? Is it from an official channel, with an invoice? Can they get it today?"},{"label":"Then","text":"Say clearly what they get here: check the phone on the spot, take it home today, come back to me if there is a problem. Don't match the price unless there is an official offer."}],"rule":"Check it's the same thing before you compare.","practice":"The customer says \"Next door is 200 cheaper.\" Say your first sentence and the three things you check.","task":"If a customer says it's cheaper somewhere else, I will ask to see it, then check three things.","recall":{"q":"The customer says it's cheaper somewhere else. Which three things do you check?","a":"Same model and memory? Official channel with an invoice? Can they get it today?"}},{"no":8,"code":"D1","title":"\"That brand is better\"","moment":"\"That brand is better\"","scene":"The customer points at the next counter: \"Isn't that brand better?\"","dont":"\"They are just an expensive name. Their specs are worse than ours.\" Their promoter is standing right there, and the customer won't trust you more for it.","say":"\"That's a good choice too. What do you like most about it?\"","extra":[{"label":"Then","text":"Compare only the one thing they named. If it's the camera, take a photo with the demo phone and let them judge. If it's the brand, don't argue. Invite them to try this one."}],"rule":"Never say the other brand is bad. Compare only what they care about.","practice":"The customer says \"I still think that brand is better.\" Say your reply and your question.","task":"If a customer mentions another brand, I will say something positive first, then ask what they like about it.","recall":{"q":"When a customer mentions another brand, what must you not say? What should you ask?","a":"Don't say the other brand is bad. Ask \"What do you like most about it?\""}},{"no":9,"code":"F3","title":"Narrow to two, then ask","moment":"The customer can't decide","scene":"The customer has looked at four or five phones and still can't decide.","dont":"Showing a sixth phone. Or saying \"Take your time\" and walking away.","say":"\"You said battery and camera matter most. For those two, these are the best fit: this one has the bigger battery, this one has the better camera. Which one do you prefer?\"","extra":[{"label":"Then","text":"Stop talking and wait for the answer. Don't fill the silence."}],"rule":"Narrow to two, ask one question, then wait.","practice":"The customer said \"My budget is tight and I mostly play games\", and has now seen five phones. Say how you narrow it down and what you ask.","task":"If a customer has seen three or more phones and hasn't decided, I will narrow to two and ask which one they prefer.","recall":{"q":"After you ask \"Which one do you prefer?\", what do you do?","a":"Stop talking and wait for the customer to answer."}},{"no":10,"code":"G1","title":"Offer one accessory before the bill","moment":"The customer has chosen a phone","scene":"The customer has chosen a model and you are about to write the bill.","dont":"Asking only after payment: \"Do you want a case?\" Or adding accessories to the bill without asking.","say":"\"You said you are out all day, and screens break easily. The case and screen protector together are X pounds. Shall I put them on for you now?\"","extra":[{"label":"Rule","text":"Recommend one item based on what the customer told you. Give the price first. Add it to the bill only after they agree."}],"rule":"Before the bill, offer one item. Price first, then ask.","practice":"The customer said \"I travel a lot for work\" and has now chosen a model. Say what you recommend and how you say it.","task":"If a customer has chosen a model, I will recommend one accessory based on their need before I write the bill.","recall":{"q":"When do you recommend an accessory? What do you say first?","a":"After the customer has chosen the model and before the bill. Start with the need they mentioned, give the price, then ask."}}]}}</script>
+<script type="application/json" id="inter-data">{"1":{"cards":[{"type":"clip","src":"media/L1-S0.mp4","eyebrow":"Welcome","title":"Meet Layla, your sales coach","intro":true,"dur":13.2},{"type":"clip","src":"media/L1-S1.mp4","eyebrow":"Watch","title":"What do you say first?","dur":13.2},{"type":"clip","src":"media/L1-S2.mp4","eyebrow":"Watch","title":"Greet, then one easy question","dur":12.3},{"type":"choice","eyebrow":"Choose","q":"A customer walks up to the Xiaomi zone. What do you say first?","options":[{"t":"\"Do you want to buy a phone?\"","ok":false,"why":"This is a yes/no question. The easy answer is \"Just looking\", and the talk is over."},{"t":"Nothing. Wait until the customer asks you.","ok":false,"why":"In a multi-brand store the customer walks to the next counter. Speak first."},{"t":"\"Welcome to Xiaomi! Are you looking for a phone with a better camera, or a longer battery?\"","ok":true,"why":"Greet first, then ask an easy either-or question. Any answer keeps the talk going."}]},{"type":"judge","eyebrow":"Good or bad?","q":"A customer walks up to the Xiaomi zone. Is this a good first sentence?","items":[{"t":"\"Can I help you?\"","ok":false,"why":"The easy answer is \"No, thanks\", and the talk is over."},{"t":"\"Welcome to Xiaomi! Is the phone for you, or for someone in your family?\"","ok":true,"why":"Greeting first, then an easy either-or question. Both answers keep the talk going."},{"t":"\"Do you want to buy a phone today?\"","ok":false,"why":"A yes/no question that feels like pressure. Most customers say \"Just looking\"."},{"t":"Smile and wait until the customer speaks first.","ok":false,"why":"In a multi-brand store the customer walks to the next counter. You speak first."},{"t":"\"Welcome to Xiaomi! Are you looking for a phone with a better camera, or a longer battery?\"","ok":true,"why":"Greeting first, then a question about what they need. Easy to answer."}]},{"type":"read","eyebrow":"Read the customer","q":"Different customers need different openings. Look first, then speak.","method":[["Eyes","What do they look at or pick up?"],["Pace","Fast and direct, or slow and wandering?"],["Clues","Who is with them? What phone do they hold?"]],"intents":["Just looking","Comparing","Ready to buy"],"customers":[{"name":"Customer A","who":"Young man, about 25, alone. Holds a phone with a cracked screen.","see":["Walks straight to the Xiaomi zone","Picks up two models and compares the cameras","Checks the time on his phone"],"intent":2,"intentWhy":"Broken phone, walks straight in, compares two models: he needs a phone today.","options":[{"t":"\"Welcome to Xiaomi! I see you're comparing these two. Is the camera the most important thing for you?\"","g":2,"why":"He is ready. Join what he is already doing and help him decide."},{"t":"\"Welcome to Xiaomi! Are you looking for a phone with a better camera, or a longer battery?\"","g":1,"why":"A good opener, but he already showed you he cares about the camera. Use what you see."},{"t":"\"Welcome to Xiaomi! Take your time, call me if you need anything.\"","g":0,"why":"He wants help now. Stepping back can lose a ready buyer."}]},{"name":"Customer B","who":"Woman, about 45, with her teenage daughter.","see":["Walks slowly past every brand","Reads the price tags on mid-price phones","The daughter points at phones. The mother asks the price."],"intent":1,"intentWhy":"They are shopping around and price matters. The daughter chooses, the mother decides and pays.","options":[{"t":"\"Welcome to Xiaomi! Is the phone for your daughter? What does she use her phone for most?\"","g":2,"why":"You speak to both: the daughter's use and the mother's decision. Budget comes next."},{"t":"\"Welcome to Xiaomi! What price range are you looking at?\"","g":1,"why":"Price matters to her, but starting with the budget feels cold. Ask about the use first."},{"t":"\"Welcome to Xiaomi! This one is our newest and best-selling model.\"","g":0,"why":"You push a phone before you know who it is for or what they can spend."}]},{"name":"Customer C","who":"Man, about 60, alone, hands behind his back.","see":["Walks slowly around the whole store","Looks at phones but doesn't pick any up","Stops a few seconds at each counter"],"intent":0,"intentWhy":"No phone in hand, no comparing, no questions yet. He is just looking.","options":[{"t":"\"Welcome to Xiaomi! Take your time. You can pick up any phone to try. I'm right here if you need me.\"","g":2,"why":"Low pressure: invite him to try and stay close. He comes to you when he is ready."},{"t":"\"Welcome to Xiaomi! Are you looking for a phone with a better camera, or a longer battery?\"","g":1,"why":"Not wrong, but a direct question can feel like too much, too soon for someone just looking. Keep it light."},{"t":"\"Can I help you with something?\"","g":0,"why":"Easy to answer \"No, thanks\", and the talk is over."}]}]},{"type":"clip","src":"media/L1-S3.mp4","eyebrow":"The customer answers","title":"\"I'm just looking, thanks.\"","dur":2.1},{"type":"clip","src":"media/L1-S4.mp4","eyebrow":"Watch","title":"Give space, stay close","dur":12.5},{"type":"choice","eyebrow":"Choose","q":"The customer says \"I'm just looking, thanks.\" What do you do?","options":[{"t":"Walk next to them and keep talking about the phones.","ok":false,"why":"Following the customer feels like pressure. They will leave sooner."},{"t":"Say \"OK\" and go back to your phone.","ok":false,"why":"Now nobody is there when they have a question. You lose the sale."},{"t":"\"Of course, take your time. You can try any of these phones. Call me if you need anything.\" Then stay close.","ok":true,"why":"Give them space, invite them to try, and stay close without following."}]},{"type":"speak","eyebrow":"Your turn","q":"A customer walks up to your counter. Say your first sentence out loud.","checks":[{"label":"You said \"Welcome to Xiaomi\"","any":["welcome to xiaomi","welcome to xiao mi","welcome to shaomi","welcome to shao mi","welcome to show me","welcome to xiomi","welcome to xaomi","welcome to shiaomi"]},{"label":"You asked an either-or question","any":[" or "]}],"model":"Welcome to Xiaomi! Are you looking for a phone with a better camera, or a longer battery?"},{"type":"clip","src":"media/L1-S5.mp4","eyebrow":"Watch","title":"Remember the rule","dur":9.9},{"type":"rule"},{"type":"task"}]}}</script>
+<script>
+(function () {
+  'use strict';
+  var D = JSON.parse(document.getElementById('course-data').textContent);
+  /* L: English lessons for the promoter side. Z: Chinese master for the admin side. Same numbers, same order. */
+  var byNo = function (a, b) { return a.no - b.no; };
+  var Z = D.lessons.slice().sort(byNo), L = D.en.lessons.slice().sort(byNo);
+  var ADMIN = { cc: '+20', num: '1000000000', pin: '2468' };
+  var KEY = 'psa10-progress-v1', RD = D.course.recall_days, NSTEP = RD.length, MAXR = D.course.max_recall_per_day, TT = D.course.task_target;
+  var INTER = JSON.parse(document.getElementById('inter-data').textContent);
+  var REP_TARGET = 6, HOLD = 7, STREAK = 3, NEW_MIN = 5, IDLE_DAYS = 2, PILOT_DAY = 45;
+
+  /* ---------- Text (one table per language; add a language by adding a table) ---------- */
+  var T = {
+    en: {
+      sync_local: 'Saved on this device', sync_cloud: 'Synced', sync_saving: 'Saving…', sync_off: 'Saved on this device',
+    mode_app: 'Promoter', mode_admin: 'Admin', tab_today: 'Today', tab_rules: 'Rules', tab_me: 'Me',
+      today: 'Today', minutes: 'About {n} min', all_clear: 'All done today', rule_today: "Today's rule", lesson_n: 'Lesson {n}',
+      new_lesson: "Today's lesson", new_min: 'About {n} min', start: 'Start lesson', resume: 'Continue lesson', learned_today: "Today's lesson is done", unlock_tomorrow: 'Lesson {n} opens tomorrow.', all_learned: 'All 10 lessons are done. From now on you only answer recall questions.',
+      recall: "Today's recall", recall_done: 'Answered today {a}/{m}', recall_due: '{n} questions due, about {n} min', recall_due_1: '1 question due, about 1 min', recall_start: 'Start recall', recall_none: 'Recall questions start the day after your first lesson.', recall_nothing: 'No recall questions are due today.', recall_cap: "You answered today's {m}. The rest come tomorrow.", recall_wait: '{n} more move to tomorrow (max {m} a day).',
+      task: 'Shop task', task_goal: 'Do it {n} times today', task_none: 'Your shop task shows here after your first lesson.', task_btn: 'I did it once', task_done: 'Done', task_from: 'From Lesson {n}',
+      sim: 'Simulate next day (demo)', sim_note: 'Demo date: today +{n}. This only changes the date on this device.',
+      close: 'Exit', prev: 'Back', next: 'Next', step_video: 'Video', step_scene: 'Situation', step_dont: "Don't do this", step_say: 'Say this', step_rule: 'Rule', step_practice: 'Say it out loud', step_task: "Today's task", step_done: 'Done',
+      video_note: 'Placeholder. The video goes here once it is made.', customer: 'Customer', the_moment: 'The moment',
+      practice_hint: 'Say it out loud to your phone', said: 'I said it', ref_say: 'One way to say it', spoke_yes: 'Got it', spoke_no: 'Not yet', spoke_saved_yes: 'Saved: got it.', spoke_saved_no: 'Saved: not yet. The recall questions will help you practise.',
+      task_intro: 'Do this {n} times in the shop today. Each time you do it, tap the button on the Today page.', finish: 'Finish lesson', done_t: 'Lesson {n} is done', done_recall: 'Your first recall question comes tomorrow.', back_today: 'Back to Today', again_note: 'Watching again does not change your recall dates.', again_end: 'Done',
+      r_title: 'Recall', r_of: 'Question {i} of {n}', think: 'Answer in your head first', show: 'Show answer', answer: 'Answer', r_yes: 'Got it', r_no: 'Not yet', r_sum: "Today's recall is done", r_sum_sub: 'Got it: {k}. Not yet: {w}. The ones you missed come back tomorrow.',
+      rules: 'The 10 rules', rules_sub: 'Tap a lesson you have learned to watch it again.', st_locked: 'Locked', st_ready: 'Ready to learn', st_build: 'Building {n}/{m}', st_hold: 'Keeping', reps: 'Repeats {n}/{m}', mastered: 'Learned in the app',
+      me: 'Me', learned_n: 'Lessons learned', mastered_n: 'Learned in the app', mastered_def: 'Learned in the app = your last {n} recall answers were right. Your manager still needs to see you do it in the shop.', today_status: 'Today', ts_new: 'Lesson', ts_recall: 'Recall', ts_task: 'Shop task', ts_done: 'Done', ts_todo: 'Not yet', ts_na: 'None today', rep_title: 'Repeats per lesson', sp_yes: 'Said it', sp_no: 'Not yet', sp_none: 'Not practised', sp_def: 'Said it / Not yet = how you rated yourself after saying it out loud.', rep_def: 'Repeats = 1 lesson + your recall answers. Goal: {n}.', record: 'Activity', no_record: 'No activity yet.',
+      log_lesson: 'Finished Lesson {n}: {s}', log_recall: 'Recall: {n} answered, {k} right', log_task: 'Shop task done {n} times (Lesson {no})', reset: 'Clear progress on this device', reset_q: 'This cannot be undone.', reset_sure: 'Yes, clear', reset_cancel: 'Cancel',
+      your_name: 'Your name', e_admin_pin: 'Wrong PIN for the admin test account.', e_name: 'Type your name, 2 to 40 characters. You typed {n}.',
+      login_new: 'Set up your login', login_back: 'Log in', demo_note: 'Demo login. Nothing is sent or checked. Do not use a real password.', wa_num: 'WhatsApp number', cc_label: 'Country code', num_hint: 'With country code. Digits only.',
+      pin_new: 'Choose a 4-digit PIN', pin_again: 'Type the PIN again', pin: '4-digit PIN', pin_demo_new: 'Demo: your PIN is not saved. Only your name and the last 4 digits of your number stay on this device.', pin_demo_back: 'Demo: any 4 digits will log you in. Your PIN was never saved.',
+      consent: 'Send my daily reminder on WhatsApp', consent_hint: 'Your choice. You can change it any time on the Me page.', login_btn_new: 'Set PIN and log in', login_btn: 'Log in',
+      e_cc: 'Country code: type + and 1 to 3 digits, for example +20.', e_num_chars: 'Use digits only in your number. Remove letters and symbols.', e_num_len: 'Your number must have 8 to 15 digits. You typed {n}. Check it and type it again.', e_pin: 'Your PIN must be exactly 4 digits, numbers only.', e_pin2: 'The two PINs are not the same. Type the same 4 digits in both boxes.',
+      account: 'Login', logged_as: 'Logged in as', remind_on: 'On', remind_off: 'Off', logout: 'Log out',
+      i_sound: 'Sound effects', i_drive_note: 'Playing from the cloud. Continue unlocks when the clip ends.', i_r_step1: '1. How ready is this customer?', i_r_step2: '2. Which opening fits best?', i_r_seen: 'What you see', i_r_exact: 'Good read!', i_r_close: 'Close', i_r_off: 'Look again', i_r_g2: 'Best fit', i_r_g1: 'Works, but…', i_r_g0: 'Weak', i_r_dir: 'Direction', i_r_next: 'Next customer', i_r_method: 'Look before you speak', i_r_of: 'Customer {a} of {b}', i_good: 'Good', i_bad: 'Bad', i_j_right: 'Right!', i_j_wrong: 'Not quite', i_j_was_good: 'This one is good.', i_j_was_bad: 'This one is bad.', i_next_item: 'Next', i_j_score: '{a} of {b} right', i_continue: 'Continue', i_check: 'Check', i_correct: 'Correct!', i_wrong: 'Not quite', i_right_ans: 'Correct answer', i_play: 'Tap to play', i_replay: 'Watch again', i_watch_first: 'Watch to the end to continue', i_clear: 'Clear', i_mic: 'Tap and speak', i_listening: 'Listening… tap to stop', i_mic_wait: 'Starting the microphone…', i_type: 'Type what you would say', i_type_ph: 'Type your first sentence here', i_cant: 'Can\'t speak now', i_try: 'Try again', i_spoke_good: 'Well said!', i_spoke_bad: 'Almost there', i_model: 'Model answer', i_heard: 'You said', i_mic_none: 'Voice input is not available in this browser. Type your sentence instead.', i_mic_denied: 'Microphone is off for this page. Type your sentence instead.', i_mic_err: 'The microphone did not start. Try again or type your sentence.', i_redo: 'Mistake from before. Try again.', i_done_h: 'Lesson complete!', i_xp_l: 'XP earned', i_acc_l: 'Right first time', i_rule_h: 'The rule to remember', i_commit: "I'll do it {n} times today", i_lesson: 'Lesson {n}', i_of: '{a} of {b}',
+      g1: "Today's rule · Lesson {n}: {s}", g3: 'Take 5 minutes today. Learn one lesson and answer your recall questions: [course link]', g4: 'Shop task: do it {n} times with customers today.'
+    },
+    zh: {
+      mode_app: '促销员端', mode_admin: '后台', lesson_n: '第 {n} 课',
+      k_login: '已登录人数', k_consent: '同意 WhatsApp 提醒', wa: 'WhatsApp', wa_none: '未登录', consent_zh: '同意提醒', yes: '是', no: '否', wa_auto_h: 'WhatsApp 自动提醒', wa_auto: '待接入 WhatsApp Business 平台后，每天自动发给已同意的人；接入前由管理者把上面的提醒文案发到 WhatsApp 群。', wa_auto_n: '当前同意 {n} 人（示例数据，号码均为虚构并打码）。', pin_reset: '重置 PIN', pin_reset_msg: '演示：正式版由管理者在后台重置。',
+      banner: '示例数据：人员均为虚构，不代表真实学习情况', overview: '总览', k_all: '注册人数', k_all_sub: '自助注册，不预建账号', k_said: '开口练习完成率', k_said_sub: '自评“Said it”的课次 / 已学课次：{a}/{b}', k_today: '今天已学习', k_done: '学完 10 节', k_rep: '每节人均重复次数', k_rep_sub: '目标 {n} 次', k_people: '{a}/{b} 人',
+      remind: '提醒名单', remind_def: '连续 {n} 天及以上没有学习的人。已学完 10 节、全部进入保持期、今天又没有到期回忆题的人不提醒。', remind_head: '提醒名单（示例数据）：{n} 人', remind_none: '没有需要提醒的人。', days_idle: '{n} 天未学', never: '还没开始', copy: '一键复制', copied: '已复制', copy_fail: '浏览器不允许自动复制，文本已选中，请手动复制。',
+      group: '今日群提醒', group_def: '这段文案是发给促销员的，所以用英文。由管理者复制后发到 WhatsApp 群。今天是试点第 {d} 天，按天轮流取 10 句口诀（第 1 天第 1 课，第 11 天回到第 1 课）。', pilot_start: '试点开始日', pilot_hint: '改了只影响本机的群提醒文案，保存在本机。', pilot_future: '开始日在今天之后，试点还没开始。下面先按第 1 天生成。', pilot_bad: '日期无效，已按默认开始日计算。', group_zh: '当天口诀（中文对照）：第 {n} 课 {s}',
+      mastery: '口诀掌握度', mastery_def: '按回忆正确率从低到高排列，最上面的一句最弱。已掌握 = 最近连续 3 次回忆答对；还需要管理者在门店看到这个动作。', acc_of: '答对 {a}/{b} 次', m_people: '已掌握 {n} 人', no_ans: '还没有作答',
+      people_def: '按未学天数从多到少排列，还没开始的排在最前。',
+      people: '人员查询', search: '按姓名搜索', no_match: '没有找到这个名字。', local: '本机体验者', real: '真实作答', upto: '学到第 {n} 课', upto0: '还没开始', last: '最近学习', d0: '今天', d1: '昨天', dn: '{n} 天前', p_lessons: '各课状态', sp_yes: '说出来了', sp_no: '还不熟', sp_none: '未练', days_idle0: '今天已学', days_idle1: '昨天学过', p_upto: '学到', c_no: '未学', c_build: '{n}/{m}', c_ok: '掌握', c_hold: '保持',
+      name_zh: '姓名', dbg_h: '调试工具（仅管理员测试账号可见）', dbg_state: '本账号进度：已学 {n}/{m} 课；模拟日期偏移 {d} 天；存档：{s}', dbg_free_off: '解除每天一课限制', dbg_free_on: '已解除每天一课限制', dbg_day: '模拟到下一天', dbg_learnall: '标记全部已学', dbg_reset: '清空本账号进度', dbg_preview: '直接预览任意一课（★ 为互动版，预览不计入进度）：', dbg_note: '管理员测试账号：+20 1000000000，PIN 2468。用普通号码登录即为促销员视角，看不到管理端。', sync_local: '仅本机', sync_cloud: '云端已同步', sync_saving: '正在同步', sync_off: '仅本机'
+    }
+  };
+
+  /* ---------- State ---------- */
+  function fresh() { return { dayOffset: 0, lessons: {}, tasks: {}, recallsDone: {}, studyDays: [], log: [], resume: null, banner: null, pilotStart: null, auth: { in: false, name: '', cc: '+20', last4: '', num: '', consent: false, pinSet: false, role: 'promoter' }, debugFree: false, savedAt: 0 }; }
+  function load() {
+    try { var r = window.localStorage.getItem(KEY); if (r) { var o = JSON.parse(r); if (o && o.lessons && o.tasks) { var f = fresh(); o.auth = Object.assign(f.auth, o.auth || {}); return Object.assign(f, o); } } } catch (e) {}
+    return fresh();
+  }
+  var S = load();
+  function save() { S.savedAt = Date.now(); try { window.localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} cloudPush(); }
+  /* Private cloud copy per viewer (claude.ai db, data/users/<id>/). Local storage stays the fast path;
+     the cloud copy makes sign-in and progress survive a cleared browser, the phone app and other devices. */
+  var SYNC = { state: 'local', ref: null, timer: null, busy: false, again: false };
+  function cloudPush() {
+    if (!SYNC.ref) return;
+    clearTimeout(SYNC.timer);
+    SYNC.timer = setTimeout(function () {
+      if (SYNC.busy) { SYNC.again = true; return; }
+      SYNC.busy = true; setSync('saving');
+      SYNC.ref.set({ state: JSON.stringify(S), savedAt: S.savedAt }).then(function () { setSync('cloud'); }, function () { setSync('local'); })
+        .then(function () { SYNC.busy = false; if (SYNC.again) { SYNC.again = false; cloudPush(); } });
+    }, 800);
+  }
+  function setSync(st) { SYNC.state = st; var el = document.querySelector('[data-sync]'); if (el) { el.dataset.sync = st; el.textContent = t('sync_' + st); } }
+  function cloudInit() {
+    try {
+      if (!window.claude || !window.claude.use) return;
+      Promise.all([window.claude.use('db'), window.claude.use('user')]).then(function (r) {
+        var db = r[0], user = r[1]; if (!db || !user) return null;
+        return user.id().then(function (id) {
+          if (!id) return;
+          SYNC.ref = db.doc('data/users/' + id + '/state');
+          return SYNC.ref.get().then(function (snap) {
+            var remote = null;
+            if (snap.exists) { try { remote = JSON.parse(snap.data().state); } catch (e) {} }
+            if (remote && remote.lessons && (remote.savedAt || 0) > (S.savedAt || 0)) {
+              var f = fresh(); remote.auth = Object.assign(f.auth, remote.auth || {}); S = Object.assign(f, remote);
+              try { window.localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+              SYNC.state = 'cloud'; if (!U.flow) go(); else render();
+            } else if (S.auth.pinSet || S.savedAt) { cloudPush(); SYNC.state = 'cloud'; setSync('cloud'); }
+            else setSync('cloud');
+          });
+        });
+      }).catch(function () { setSync('local'); });
+    } catch (e) {}
+  }
+  var U = { mode: 'app', tab: 'today', flow: null, q: '', person: null, resetAsk: false, focusTitle: false };
+
+  /* ---------- Helpers ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]; }); }
+  function isAdm() { return S.auth.in && S.auth.role === 'admin'; }
+  function lang() { return U.mode === 'admin' ? 'zh' : 'en'; }
+  function tx(l, k, a) { var s = T[l][k]; if (s == null) s = T[l === 'en' ? 'zh' : 'en'][k]; if (s == null) s = k; if (a) Object.keys(a).forEach(function (x) { s = s.split('{' + x + '}').join(a[x]); }); return s; }
+  function tn(k, a) { return T[lang()][k + '_' + a.n] != null ? t(k + '_' + a.n, a) : t(k, a); }
+  function t(k, a) { return tx(lang(), k, a); }
+  function today() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5) + S.dayOffset; }
+  function fmtDay(d) { try { return new Intl.DateTimeFormat('en-GB', { month: 'short', day: 'numeric', timeZone: 'UTC' }).format(new Date(d * 864e5)); } catch (e) { return String(d); } }
+  function pct(a, b) { return b ? Math.round(a / b * 100) : 0; }
+  function one(v) { return (Math.round(v * 10) / 10).toFixed(1); }
+  function markStudy() { var d = today(); if (S.studyDays.indexOf(d) < 0) S.studyDays.push(d); }
+  function addLog(k, data) { S.log.unshift(Object.assign({ k: k, d: today() }, data)); S.log = S.log.slice(0, 60); }
+  var I = {
+    eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    snd: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/>', mute: '<path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/>',
+    play: '<path d="M8 5v14l11-7z" fill="currentColor" stroke="none"/>', mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/>',
+    today: '<rect x="4" y="5" width="16" height="15" rx="1"/><path d="M4 10h16M8 3v4M16 3v4"/>',
+    rules: '<path d="M5 6h14M5 12h14M5 18h9"/>',
+    me: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+    check: '<path d="M4 12.5 10 18 20 6"/>', lock: '<rect x="5" y="11" width="14" height="9" rx="1"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    chev: '<path d="m9 5 7 7-7 7"/>', back: '<path d="m15 5-7 7 7 7"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>',
+    copy: '<rect x="9" y="9" width="11" height="11" rx="1"/><path d="M5 15H4V4h11v1"/>', plus: '<path d="M12 5v14M5 12h14"/>',
+    sortD: '<path d="M12 5v14M6 13l6 6 6-6"/>', sortU: '<path d="M12 19V5M6 11l6-6 6 6"/>'
+  };
+  function icon(k, cls) { return '<svg class="ic ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + I[k] + '</svg>'; }
+
+  /* ---------- Course logic ---------- */
+  function lesson(no) { return L[no - 1]; }
+  function rec(no) { return S.lessons[no] || null; }
+  function learnedCount() { return L.filter(function (l) { return rec(l.no); }).length; }
+  function learnedToday() { var d = today(); return L.filter(function (l) { var r = rec(l.no); return r && r.day === d; })[0] || null; }
+  /* One new lesson a day, in order. */
+  function newLesson() { var c = learnedCount(); return c >= L.length || (learnedToday() && !S.debugFree) ? null : L[c]; }
+  function dueList() {
+    var d = today();
+    return L.filter(function (l) { var r = rec(l.no); return r && r.due <= d; }).sort(function (a, b) { return rec(a.no).due - rec(b.no).due || a.no - b.no; }).map(function (l) { return l.no; });
+  }
+  function recallsToday() { return S.recallsDone[today()] || 0; }
+  function todayRecalls() { return dueList().slice(0, Math.max(MAXR - recallsToday(), 0)); }
+  function completeLesson(no) {
+    var d = today();
+    S.lessons[no] = { day: d, step: 0, due: d + RD[0], hold: false, hist: [], spoke: U.flow && U.flow.spoke != null ? U.flow.spoke : null };
+    S.resume = null; markStudy(); addLog('lesson', { no: no }); save();
+  }
+  /* Right: next step, due = learned day + next interval (tomorrow if that has passed). Wrong: same step, due tomorrow.
+     After the last step the lesson is on hold and returns every HOLD days. */
+  function answerRecall(no, ok) {
+    var r = rec(no), d = today();
+    r.hist.push({ d: d, ok: ok });
+    if (!ok) r.due = d + 1;
+    else if (r.hold) r.due = d + HOLD;
+    else {
+      r.step++;
+      if (r.step >= NSTEP) { r.hold = true; r.due = d + HOLD; }
+      else { var nd = r.day + RD[r.step]; r.due = nd <= d ? d + 1 : nd; }
+    }
+    S.recallsDone[d] = (S.recallsDone[d] || 0) + 1;
+    markStudy();
+    if (S.log[0] && S.log[0].k === 'recall' && S.log[0].d === d) { S.log[0].n++; if (ok) S.log[0].ok++; } else addLog('recall', { n: 1, ok: ok ? 1 : 0 });
+    save();
+  }
+  function masteredHist(h) { return h.length >= STREAK && h.slice(-STREAK).every(function (x) { return x; }); }
+  function mastered(no) { var r = rec(no); return !!r && masteredHist(r.hist.map(function (x) { return x.ok; })); }
+  function reps(no) { var r = rec(no); return r ? 1 + r.hist.length : 0; }
+  function status(no) {
+    var r = rec(no), nl = newLesson();
+    if (!r) return nl && nl.no === no ? { k: 'ready', txt: t('st_ready') } : { k: 'locked', txt: t('st_locked') };
+    return r.hold ? { k: 'hold', txt: t('st_hold') } : { k: 'build', txt: t('st_build', { n: r.step, m: NSTEP }) };
+  }
+  function taskLesson() { var lt = learnedToday(); if (lt) return lt; var c = learnedCount(); return c ? L[c - 1] : null; }
+  function taskKey(no) { return today() + ':' + no; }
+  function taskCount(no) { return S.tasks[taskKey(no)] || 0; }
+  function ruleLesson() {
+    var x = newLesson() || learnedToday(); if (x) return x;
+    /* No new lesson today: the first recall of the day sets the banner, and it stays put after the recalls are answered. */
+    var d = today(), c = learnedCount();
+    if (S.banner && S.banner.d === d && rec(S.banner.no)) return lesson(S.banner.no);
+    var due = dueList(), no = due.length ? due[0] : c ? L[d % c].no : 1;
+    if (c) S.banner = { d: d, no: no };
+    return lesson(no);
+  }
+
+  /* ---------- Placeholder figure ---------- */
+  function figure() {
+    return '<svg class="figure" viewBox="0 0 240 232" role="img" aria-label="' + esc(t('customer')) + '">' +
+      '<rect class="f-skin2" x="104" y="138" width="32" height="34"/><ellipse class="f-skin" cx="120" cy="92" rx="46" ry="56"/>' +
+      '<path class="f-shirt" d="M26 232C30 176 74 164 120 164s90 12 94 68z"/><path class="f-shirt2" d="M100 164l20 22 20-22 12 8-22 28-10-6-10 6-22-28z"/>' +
+      '<path class="f-hair" d="M74 86C66 42 92 30 120 30s54 12 46 56c-4-16-12-28-46-30-34 2-42 14-46 30z"/>' +
+      '<path class="f-hair" d="M78 104c2 34 22 50 42 50s40-16 42-50c-6 10-12 12-20 12-8-2-14-4-22-4s-14 2-22 4c-8 0-14-2-20-12z"/>' +
+      '<circle cx="100" cy="89" r="4.5" class="f-hair"/><circle cx="140" cy="89" r="4.5" class="f-hair"/>' +
+      '<path class="s-face" d="M88 72 108 71"/><path class="s-face" d="M132 71 152 72"/><path class="s-face" d="M108 122 Q114 118 120 122 Q126 126 132 122"/></svg>';
+  }
+
+
+  /* ---------- Interactive lesson: video clips with questions between them ---------- */
+  var DICT = null;
+  try { if (window.claude && window.claude.use) window.claude.use('dictation').then(function (d) { DICT = d || null; if (DICT) { DICT.onPartial(function (e) { var f = U.flow; if (f && f.inter) { f.partial = e.text; paintHeard(); } }); DICT.onFinal(function (e) { var f = U.flow; if (f && f.inter) { f.heard = (f.heard ? f.heard : '') + (f.heard ? e.text : e.text.replace(/^\s+/, '')); f.partial = ''; paintHeard(); } }); DICT.onState(function (e) { var f = U.flow; if (!f || !f.inter) return; f.mic = e.state; if (e.state === 'idle' && e.reason && ['stopped', 'viewer_stopped', 'hidden'].indexOf(e.reason) < 0) f.micErr = e.reason; render(); }); } if (U.flow && U.flow.inter) render(); }, function () {}); } catch (e) {}
+
+  /* Sound and reward effects. Tones are synthesised, so there are no audio files to load. */
+  var AC = null;
+  function sfxOn() { return !S.mute; }
+  function tone(seq, type, vol) {
+    if (!sfxOn()) return;
+    try {
+      AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+      if (AC.state === 'suspended') AC.resume();
+      var t0 = AC.currentTime + 0.01;
+      seq.forEach(function (n) {
+        var o = AC.createOscillator(), g = AC.createGain();
+        o.type = type || 'sine'; o.frequency.setValueAtTime(n[0], t0 + n[1]);
+        if (n[3]) o.frequency.exponentialRampToValueAtTime(n[3], t0 + n[1] + n[2]);
+        g.gain.setValueAtTime(0.0001, t0 + n[1]); g.gain.exponentialRampToValueAtTime(vol || 0.18, t0 + n[1] + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[1] + n[2]);
+        o.connect(g); g.connect(AC.destination); o.start(t0 + n[1]); o.stop(t0 + n[1] + n[2] + 0.02);
+      });
+    } catch (e) {}
+  }
+  var SFX = {
+    good: function () { tone([[784, 0, .13], [1175, .1, .22]], 'sine', .2); },
+    bad: function () { tone([[220, 0, .28, 150]], 'triangle', .16); },
+    tap: function () { tone([[1400, 0, .04]], 'sine', .06); },
+    done: function () { tone([[523, 0, .14], [659, .12, .14], [784, .24, .14], [1047, .36, .4]], 'sine', .18); }
+  };
+  function calm() { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } }
+  function confetti(n, fromY) {
+    if (calm()) return;
+    var box = document.createElement('div'), cols = ['var(--tag)', 'var(--action)', 'var(--good)', '#FF7A59', '#4F9DFF'];
+    box.className = 'confetti'; box.setAttribute('aria-hidden', 'true');
+    var w = window.innerWidth, y = fromY || window.innerHeight * 0.7;
+    for (var i = 0; i < n; i++) {
+      var p = document.createElement('i'), a = Math.random() * Math.PI - Math.PI, sp = 120 + Math.random() * 260;
+      p.style.left = (w / 2 + (Math.random() - .5) * 120) + 'px'; p.style.top = y + 'px'; p.style.background = cols[i % cols.length];
+      p.style.setProperty('--dx', Math.cos(a) * sp + 'px'); p.style.setProperty('--dy', (Math.sin(a) * sp - 60) + 'px');
+      p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg'); p.style.setProperty('--t', (.7 + Math.random() * .5) + 's');
+      box.appendChild(p);
+    }
+    document.body.appendChild(box); setTimeout(function () { box.remove(); }, 1400);
+  }
+  function xpFly(n) {
+    var xp = document.querySelector('.i-xp'); if (!xp || !n) return;
+    xp.classList.remove('bump'); void xp.offsetWidth; xp.classList.add('bump');
+    if (calm()) return;
+    var r = xp.getBoundingClientRect(), el = document.createElement('div');
+    el.className = 'xp-fly'; el.textContent = '+' + n + ' XP'; el.setAttribute('aria-hidden', 'true');
+    el.style.left = (r.left + r.width / 2) + 'px'; el.style.top = (r.bottom + 4) + 'px';
+    document.body.appendChild(el); setTimeout(function () { el.remove(); }, 1000);
+  }
+  function reward(ok, gained) {
+    if (ok) {
+      SFX.good();
+      var sh = document.querySelector('.sheet'); confetti(18, sh ? sh.getBoundingClientRect().top : null); xpFly(gained);
+      var r = document.querySelector('.opt.right'); if (r) r.classList.add('pop');
+    } else SFX.bad();
+  }
+
+  /* Outside claude.ai there is no dictation capability: use the browser's own speech recognition (Chrome, Edge, Android). */
+  function webDictation() {
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return null;
+    var rec = null, cb = { p: [], f: [], s: [] }, state = 'idle';
+    function emit(k, v) { cb[k].forEach(function (fn) { try { fn(v); } catch (e) {} }); }
+    function setS(st, reason) { state = st; emit('s', { state: st, reason: reason }); }
+    return {
+      onPartial: function (fn) { cb.p.push(fn); }, onFinal: function (fn) { cb.f.push(fn); }, onState: function (fn) { cb.s.push(fn); },
+      start: function () {
+        return new Promise(function (res, rej) {
+          try {
+            rec = new SR(); rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = true;
+            rec.onresult = function (e) { var part = ''; for (var i = e.resultIndex; i < e.results.length; i++) { var r = e.results[i]; if (r.isFinal) emit('f', { text: (i ? ' ' : '') + r[0].transcript }); else part += r[0].transcript; } emit('p', { text: part }); };
+            rec.onerror = function (e) { var code = e.error === 'not-allowed' || e.error === 'service-not-allowed' ? 'not_granted' : 'upstream_error'; setS('idle', code); rej({ code: code }); };
+            rec.onend = function () { if (state !== 'idle') setS('idle', 'stopped'); };
+            rec.onstart = function () { setS('listening'); res(); };
+            setS('starting'); rec.start();
+          } catch (e) { setS('idle', 'unavailable'); rej({ code: 'unavailable' }); }
+        });
+      },
+      stop: function () { return new Promise(function (res) { try { if (rec) rec.stop(); } catch (e) {} setS('idle', 'stopped'); res(); }); }
+    };
+  }
+  setTimeout(function () {
+    if (DICT) return;
+    var w = webDictation(); if (!w) return;
+    DICT = w;
+    DICT.onPartial(function (e) { var f = U.flow; if (f && f.inter) { f.partial = e.text; paintHeard(); } });
+    DICT.onFinal(function (e) { var f = U.flow; if (f && f.inter) { f.heard = (f.heard || '') + (f.heard ? e.text : e.text.replace(/^\s+/, '')); f.partial = ''; paintHeard(); } });
+    DICT.onState(function (e) { var f = U.flow; if (!f || !f.inter) return; f.mic = e.state; if (e.state === 'idle' && e.reason && ['stopped', 'viewer_stopped', 'hidden'].indexOf(e.reason) < 0) f.micErr = e.reason; render(); });
+    if (U.flow && U.flow.inter) render();
+  }, window.claude && window.claude.use ? 10500 : 0);
+  function inter(no) { return INTER[String(no)] || null; }
+  function startInter(no, again, pos) {
+    var c = inter(no).cards;
+    U.flow = { type: 'lesson', inter: true, no: no, again: again, queue: c.map(function (_, i) { return i; }).filter(function (i) { return !(again && c[i].intro); }), pos: pos || 0, redo: {}, missed: {}, xp: 0, first: 0, asked: 0, spoke: null };
+    resetCard(U.flow); go();
+  }
+  function resetCard(f) { f.iframe = false; f.rIdx = 0; f.rIntent = null; f.rPick = null; f.jIdx = 0; f.jAns = []; f.pick = null; f.checked = false; f.ok = null; f.built = []; f.watched = false; f.heard = ''; f.partial = ''; f.typing = false; f.mic = 'idle'; f.micErr = null; f.committed = false; }
+  function interSave(f) { if (!f.again) { S.resume = { no: f.no, inter: true, pos: Math.min(f.pos, inter(f.no).cards.length - 1) }; save(); } }
+  function norm(s) { return ' ' + String(s || '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim() + ' '; }
+  function speakResult(card, text) { var n = norm(text); return card.checks.map(function (c) { return c.any.some(function (a) { return n.indexOf(norm(a).trim() === 'or' ? ' or ' : norm(a).trim()) >= 0; }); }); }
+  function paintHeard() {
+    var f = U.flow, el = document.getElementById('heard-text'); if (!el || !f) return;
+    el.innerHTML = esc(f.heard) + (f.partial ? ' <span class="part">' + esc(f.partial) + '</span>' : '');
+    var chk = document.querySelector('[data-act="i-check"]'); if (chk) chk.disabled = !(f.heard || '').trim();
+  }
+  function viewInter(f) {
+    var l = lesson(f.no), cards = inter(f.no).cards, total = f.queue.length;
+    var head = '<div class="i-top"><button class="icon-btn" data-act="exit" aria-label="' + esc(t('close')) + '">' + icon('x') + '</button>' +
+      '<div class="i-bar" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + f.pos + '" aria-label="' + esc(t('i_of', { a: f.pos, b: total })) + '"><b style="width:' + pct(f.pos, total) + '%"></b></div>' +
+      '<span class="i-xp" data-xp="' + f.xp + '">' + icon('check') + f.xp + ' XP</span><button class="icon-btn snd" data-act="i-snd" aria-pressed="' + sfxOn() + '" aria-label="' + esc(t('i_sound')) + '">' + icon(sfxOn() ? 'snd' : 'mute') + '</button></div>';
+    if (f.pos >= total) return '<div class="col flow gutter">' + head + interEnd(f, l) + '</div>';
+    var ci = f.queue[f.pos], c = cards[ci], body = '', foot = '';
+    var eb = '<p class="eyebrow">' + esc(t('i_lesson', { n: l.no })) + ' · ' + esc(c.eyebrow || (c.type === 'rule' ? t('step_rule') : t('step_task'))) + '</p>' + (f.redo[f.pos] ? '<p class="i-redo">' + esc(t('i_redo')) + '</p>' : '');
+    if (c.type === 'clip') {
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.title) + '</h1><div class="vid" data-clip="' + esc(c.src) + '"><video id="clip" playsinline preload="auto">' + (c.cloud ? '<source src="' + esc(c.cloud) + '" type="video/mp4">' : '') + '<source src="' + esc(c.src) + '" type="video/mp4"></video><button class="vid-play" data-act="i-play" id="vid-play"><span class="ring">' + icon('play') + '</span>' + esc(t('i_play')) + '</button></div>';
+      foot = '<div class="two"><button class="btn line" data-act="i-replay">' + esc(t('i_replay')) + '</button><button class="btn" data-act="i-next" id="clip-next"' + (f.watched || f.again ? '' : ' disabled') + '>' + esc(t('i_continue')) + '</button></div>' + (f.watched || f.again ? '' : '<p class="fine" id="clip-note" style="text-align:center">' + esc(t('i_watch_first')) + '</p>');
+    } else if (c.type === 'choice') {
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.q) + '</h1><div class="opts" role="group">' + c.options.map(function (o, i) {
+        var cls = f.checked ? (o.ok ? ' right' : i === f.pick ? ' wrong' : '') : '';
+        return '<button class="opt' + cls + '" data-act="i-pick" data-arg="' + i + '" aria-pressed="' + (f.pick === i) + '"' + (f.checked ? ' disabled' : '') + '><span class="k">' + 'ABCD'[i] + '</span><span>' + esc(o.t) + '</span></button>';
+      }).join('') + '</div>';
+      foot = f.checked ? sheet(f.ok, f.ok ? c.options[f.pick].why : c.options[f.pick].why, f.ok ? '' : c.options.filter(function (o) { return o.ok; })[0].t) : '<button class="btn wide" data-act="i-check"' + (f.pick == null ? ' disabled' : '') + '>' + esc(t('i_check')) + '</button>';
+    } else if (c.type === 'read') {
+      var ri = f.rIdx, cu = c.customers[ri], step2 = f.rIntent != null;
+      var dist = step2 ? Math.abs(f.rIntent - cu.intent) : null;
+      body = eb + (ri === 0 && !step2 ? '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.q) + '</h1><p class="rstep">' + esc(t('i_r_method')) + '</p><div class="method">' + c.method.map(function (m) { return '<div><b>' + esc(m[0]) + '</b><span>' + esc(m[1]) + '</span></div>'; }).join('') + '</div>' : '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(t('i_r_of', { a: ri + 1, b: c.customers.length })) + '</h1>') +
+        '<div class="cust" data-cust="' + ri + '"><div class="cust-h"><span class="cust-av" aria-hidden="true">' + esc(cu.name.slice(-1)) + '</span><div><p class="eyebrow">' + esc(cu.name) + '</p><p class="cust-who">' + esc(cu.who) + '</p></div></div>' +
+        '<p class="fine">' + esc(t('i_r_seen')) + '</p><ul>' + cu.see.map(function (x) { return '<li>' + icon('eye') + '<span>' + esc(x) + '</span></li>'; }).join('') + '</ul></div>' +
+        '<p class="rstep">' + esc(t('i_r_step1')) + '</p><div class="intents">' + c.intents.map(function (lab, k) {
+          var cls = !step2 ? '' : k === f.rIntent ? (dist === 0 ? ' right' : dist === 1 ? ' close' : ' wrong') : k === cu.intent ? ' truth' : '';
+          return '<button class="intent' + cls + '" data-act="r-intent" data-arg="' + k + '"' + (step2 ? ' disabled' : '') + '><span class="meter">' + [0, 1, 2].map(function (m) { return '<i class="' + (m <= k ? 'on' : '') + '"></i>'; }).join('') + '</span>' + esc(lab) + '</button>';
+        }).join('') + '</div>';
+      if (!step2) foot = '';
+      else {
+        body += '<p class="small" data-intent-why><span class="lbl" style="font-weight:700">' + esc(t(dist === 0 ? 'i_r_exact' : dist === 1 ? 'i_r_close' : 'i_r_off')) + '</span> ' + esc(cu.intentWhy) + '</p>' +
+          '<p class="rstep">' + esc(t('i_r_step2')) + '</p><div class="opts">' + cu.options.map(function (o, k) {
+            var done = f.rPick != null, cls = done ? (k === f.rPick ? (o.g === 2 ? ' right' : o.g === 1 ? ' ok2' : ' wrong') : '') : '';
+            return '<button class="opt' + cls + '" data-act="r-pick" data-arg="' + k + '"' + (done ? ' disabled' : '') + '><span class="k">' + 'ABC'[k] + '</span><span>' + esc(o.t) + '</span>' + (done ? '<span class="grade g' + o.g + '">' + esc(t('i_r_g' + o.g)) + '</span>' : '') + '</button>';
+          }).join('') + '</div>';
+        if (f.rPick == null) foot = '';
+        else {
+          var o = cu.options[f.rPick], best = cu.options.filter(function (x) { return x.g === 2; })[0], last = ri === c.customers.length - 1, kind = o.g === 2 ? 'good' : o.g === 1 ? 'mid' : 'bad';
+          foot = '<div class="sheet ' + kind + '" data-sheet="' + kind + '" role="status"><h2>' + icon(o.g === 2 ? 'check' : o.g === 1 ? 'eye' : 'x') + esc(t('i_r_g' + o.g)) + '</h2><p>' + esc(o.why) + '</p>' +
+            (o.g < 2 ? '<p><span class="lbl">' + esc(t('i_r_dir')) + ':</span> ' + esc(best.why) + '</p>' : '') +
+            '<button class="btn wide ok" data-act="' + (last ? 'i-next' : 'r-next') + '">' + esc(t(last ? 'i_continue' : 'i_r_next')) + '</button></div>';
+        }
+      }
+    } else if (c.type === 'judge') {
+      var ji = f.jIdx, it = c.items[ji], ans = f.jAns[ji], got = ans != null ? ans === it.ok : null;
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.q) + '</h1>' +
+        '<div class="jcount" aria-label="' + esc(t('i_of', { a: ji + 1, b: c.items.length })) + '">' + c.items.map(function (x, k) { var a = f.jAns[k]; return '<i class="' + (a == null ? (k === ji ? 'cur' : '') : a === x.ok ? 'ok' : 'no') + '"></i>'; }).join('') + '</div>' +
+        '<div class="jq' + (got == null ? '' : got ? ' right' : ' wrong') + '" data-judge="' + ji + '">' + esc(it.t) + '</div>';
+      if (ans == null) foot = '<div class="jbtns"><button class="jbtn bad" data-act="i-judge" data-arg="0">' + icon('x') + esc(t('i_bad')) + '</button><button class="jbtn good" data-act="i-judge" data-arg="1">' + icon('check') + esc(t('i_good')) + '</button></div>';
+      else {
+        var last = ji === c.items.length - 1, score = c.items.filter(function (x, k) { return f.jAns[k] === x.ok; }).length;
+        foot = '<div class="sheet ' + (got ? 'good' : 'bad') + '" data-sheet="' + (got ? 'good' : 'bad') + '" role="status"><h2>' + icon(got ? 'check' : 'x') + esc(t(got ? 'i_j_right' : 'i_j_wrong')) + '</h2><p><span class="lbl">' + esc(t(it.ok ? 'i_j_was_good' : 'i_j_was_bad')) + '</span> ' + esc(it.why) + '</p>' +
+          (last ? '<p class="lbl" data-jscore>' + esc(t('i_j_score', { a: score, b: c.items.length })) + '</p>' : '') +
+          '<button class="btn wide ok" data-act="' + (last ? 'i-next' : 'i-jnext') + '">' + esc(t(last ? 'i_continue' : 'i_next_item')) + '</button></div>';
+      }
+    } else if (c.type === 'build') {
+      var pool = c.answer.concat(c.extra || []), order = shuffled(pool.length, f.no * 31 + ci);
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.q) + '</h1><div class="ans-line" aria-label="Your sentence">' + f.built.map(function (pi, k) { return '<button class="tile" data-act="i-untile" data-arg="' + k + '"' + (f.checked ? ' disabled' : '') + '>' + esc(pool[pi]) + '</button>'; }).join('') + '</div>' +
+        '<div class="bank">' + order.map(function (pi) { var used = f.built.indexOf(pi) >= 0; return '<button class="tile' + (used ? ' used' : '') + '" data-act="i-tile" data-arg="' + pi + '"' + (used || f.checked ? ' disabled' : '') + (used ? ' aria-hidden="true" tabindex="-1"' : '') + '>' + esc(pool[pi]) + '</button>'; }).join('') + '</div>';
+      foot = f.checked ? sheet(f.ok, '', f.ok ? '' : c.answer.join(' ')) : '<div class="two"><button class="btn line" data-act="i-clear"' + (f.built.length ? '' : ' disabled') + '>' + esc(t('i_clear')) + '</button><button class="btn" data-act="i-check"' + (f.built.length ? '' : ' disabled') + '>' + esc(t('i_check')) + '</button></div>';
+    } else if (c.type === 'speak') {
+      var res = f.checked ? speakResult(c, f.heard) : null, pass = res && res.every(Boolean);
+      var micNote = f.micErr ? (f.micErr === 'not_granted' ? 'i_mic_denied' : f.micErr === 'unavailable' ? 'i_mic_none' : 'i_mic_err') : (!DICT ? 'i_mic_none' : '');
+      var useType = f.typing || !DICT || f.micErr === 'not_granted' || f.micErr === 'unavailable';
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(c.q) + '</h1>';
+      if (!f.checked) {
+        body += (DICT && !useType ? '<div class="mic-wrap"><button class="mic" data-act="i-mic" data-state="' + f.mic + '" aria-label="' + esc(t(f.mic === 'listening' ? 'i_listening' : 'i_mic')) + '">' + icon('mic') + '</button><p class="small" role="status">' + esc(t(f.mic === 'listening' ? 'i_listening' : f.mic === 'starting' ? 'i_mic_wait' : 'i_mic')) + '</p></div>' : '') +
+          (micNote ? '<p class="fine" role="status" data-mic-note>' + esc(t(micNote)) + '</p>' : '') +
+          (useType ? '<label class="heard"><span class="fine">' + esc(t('i_type')) + '</span><textarea id="speak-type" placeholder="' + esc(t('i_type_ph')) + '">' + esc(f.heard) + '</textarea></label>' : '<div class="heard" aria-live="polite"><p class="fine">' + esc(t('i_heard')) + '</p><p id="heard-text">' + esc(f.heard) + '</p></div>');
+        foot = '<div class="two"><button class="btn line" data-act="i-cant">' + esc(t('i_cant')) + '</button><button class="btn" data-act="i-check"' + ((f.heard || '').trim() ? '' : ' disabled') + '>' + esc(t('i_check')) + '</button></div>' + (DICT && !useType ? '<button class="btn line wide" data-act="i-typeit" style="min-height:40px">' + esc(t('i_type')) + '</button>' : '');
+      } else {
+        body += '<div class="heard"><p class="fine">' + esc(t('i_heard')) + '</p><p data-heard>' + esc(f.heard) + '</p></div><ul class="checks">' + c.checks.map(function (k, i) { return '<li class="' + (res[i] ? 'ok' : 'no') + '">' + icon(res[i] ? 'check' : 'x') + esc(k.label) + '</li>'; }).join('') + '</ul>';
+        foot = '<div class="sheet ' + (pass ? 'good' : 'bad') + '" data-sheet="' + (pass ? 'good' : 'bad') + '"><h2>' + icon(pass ? 'check' : 'x') + esc(t(pass ? 'i_spoke_good' : 'i_spoke_bad')) + '</h2><p><span class="lbl">' + esc(t('i_model')) + ':</span> ' + esc(c.model) + '</p>' +
+          (pass ? '<button class="btn wide ok" data-act="i-next">' + esc(t('i_continue')) + '</button>' : '<div class="two"><button class="btn line" data-act="i-retry">' + esc(t('i_try')) + '</button><button class="btn ok" data-act="i-next">' + esc(t('i_continue')) + '</button></div>') + '</div>';
+      }
+    } else if (c.type === 'rule') {
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(t('i_rule_h')) + '</h1><section class="tag big"><p class="eyebrow">' + esc(t('lesson_n', { n: l.no })) + '</p><p class="tag-line" data-rule>' + esc(l.rule) + '</p></section>';
+      foot = '<button class="btn wide" data-act="i-next">' + esc(t('i_continue')) + '</button>';
+    } else {
+      body = eb + '<h1 id="screen-title" tabindex="-1" class="i-q">' + esc(t('step_task')) + '</h1><section class="panel"><p class="big" data-task-text>' + esc(l.task) + '</p><p class="small muted">' + esc(t('task_intro', { n: TT })) + '</p></section>';
+      foot = '<button class="btn wide" data-act="i-next">' + esc(f.again ? t('again_end') : t('i_commit', { n: TT })) + '</button>';
+    }
+    return '<div class="col flow gutter">' + head + '<div class="i-card" data-card="' + c.type + '" data-ci="' + ci + '">' + body + '</div>' + foot + '</div>';
+  }
+  function sheet(ok, why, right) {
+    return '<div class="sheet ' + (ok ? 'good' : 'bad') + '" data-sheet="' + (ok ? 'good' : 'bad') + '" role="status"><h2>' + icon(ok ? 'check' : 'x') + esc(t(ok ? 'i_correct' : 'i_wrong')) + '</h2>' +
+      (right ? '<p><span class="lbl">' + esc(t('i_right_ans')) + ':</span> ' + esc(right) + '</p>' : '') + (why ? '<p>' + esc(why) + '</p>' : '') +
+      '<button class="btn wide ok" data-act="i-next">' + esc(t('i_continue')) + '</button></div>';
+  }
+  function interEnd(f, l) {
+    var cnt = learnedCount();
+    return '<div class="i-end"><h1 id="screen-title" tabindex="-1" data-done>' + esc(f.again ? t('again_end') : t('i_done_h')) + '</h1>' +
+      '<div class="i-stats"><div class="i-stat"><b data-end-xp>' + f.xp + '</b><span>' + esc(t('i_xp_l')) + '</span></div><div class="i-stat"><b data-end-acc>' + (f.asked ? pct(f.first, f.asked) : 100) + '%</b><span>' + esc(t('i_acc_l')) + '</span></div></div>' +
+      '<section class="tag" style="width:100%;text-align:start"><p class="eyebrow">' + esc(t('rule_today')) + '</p><p class="tag-line">' + esc(l.rule) + '</p></section>' +
+      (f.again ? '<p class="small muted">' + esc(t('again_note')) + '</p>' : '<p class="small">' + esc(t('done_recall')) + ' ' + esc(cnt < L.length ? t('unlock_tomorrow', { n: cnt + 1 }) : t('all_learned')) + '</p>') +
+      '<button class="btn wide" data-act="exit">' + esc(t('back_today')) + '</button></div>';
+  }
+  function shuffled(n, seed) { var r = mulberry32(seed), a = []; for (var i = 0; i < n; i++) a.push(i); for (i = n - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), x = a[i]; a[i] = a[j]; a[j] = x; } return a; }
+  function afterRender() {
+    var f = U.flow; if (!f || !f.inter) return;
+    var v = document.getElementById('clip'); if (!v) return;
+    var cover = document.getElementById('vid-play');
+    v.addEventListener('play', function () { if (cover) cover.hidden = true; });
+    v.addEventListener('click', function () { if (v.paused) { var q = v.play(); if (q && q.catch) q.catch(function () {}); } else v.pause(); });
+    v.addEventListener('ended', function () { f.watched = true; var b = document.getElementById('clip-next'), n = document.getElementById('clip-note'); if (b) { b.disabled = false; try { b.focus({ preventScroll: true }); } catch (e) {} } if (n) n.hidden = true; });
+    var p = v.play(); if (p && p.catch) p.catch(function () { if (cover && !f.iframe) cover.hidden = false; });
+    if (cover) cover.hidden = true;
+    /* Cloud fallback: when the browser cannot stream the file directly (Google Drive often refuses that outside
+       its own player), show the clip in Drive's player instead and unlock Continue after the clip's length. */
+    var c = inter(f.no).cards[f.queue[f.pos]], srcs = v.querySelectorAll('source'), last = srcs[srcs.length - 1], gave = false;
+    function toDrive() {
+      if (gave || !c.drive || !document.body.contains(v)) return; gave = true; f.iframe = true;
+      var box = v.parentNode; box.innerHTML = '<iframe src="https://drive.google.com/file/d/' + encodeURIComponent(c.drive) + '/preview" allow="autoplay; fullscreen" title="' + esc(c.title) + '" style="border:0;width:100%;height:100%"></iframe>';
+      var b = document.getElementById('clip-next'), n = document.getElementById('clip-note');
+      if (n) n.textContent = t('i_drive_note');
+      setTimeout(function () { if (U.flow !== f || !document.body.contains(box)) return; f.watched = true; if (b) b.disabled = false; if (n) n.hidden = true; }, Math.ceil((c.dur || 10) * 1000) + 1500);
+    }
+    if (last) last.addEventListener('error', toDrive);
+    setTimeout(function () { if (document.body.contains(v) && v.readyState === 0) toDrive(); }, 7000);
+  }
+  function interNext() {
+    var f = U.flow, cards = inter(f.no).cards, c = cards[f.queue[f.pos]];
+    if (c && (c.type === 'choice' || c.type === 'build') && f.checked && !f.ok && !f.redo[f.pos]) { f.queue.push(f.queue[f.pos]); f.redo[f.queue.length - 1] = true; }
+    if (DICT && f.mic !== 'idle') { try { DICT.stop(); } catch (e) {} }
+    f.pos++; resetCard(f);
+    var end = f.pos >= f.queue.length;
+    if (end && !f.again && !rec(f.no)) completeLesson(f.no); else if (!end) interSave(f);
+    go();
+    if (end) { SFX.done(); confetti(40, window.innerHeight * 0.35); }
+  }
+
+  /* ---------- Promoter views ---------- */
+  function simBlock() {
+    return '<section class="stack"><button class="btn demo wide" data-act="sim">' + esc(t('sim')) + '</button>' + (S.dayOffset ? '<p class="fine" data-simnote>' + esc(t('sim_note', { n: S.dayOffset })) + '</p>' : '') + '</section>';
+  }
+  function viewToday() {
+    var nl = newLesson(), lt = learnedToday(), cnt = learnedCount(), due = dueList(), doneR = recallsToday(), todo = todayRecalls();
+    var rl = ruleLesson(), mins = (nl ? NEW_MIN : 0) + todo.length, html;
+    html = '<header class="spread"><div><p class="eyebrow">' + esc(D.en.course.title) + '</p><h1 id="screen-title" tabindex="-1">' + esc(t('today')) + '</h1></div><span class="chip ' + (mins ? 'tagc' : 'good') + '" data-mins="' + mins + '">' + esc(mins ? t('minutes', { n: mins }) : t('all_clear')) + '</span></header>';
+    html += '<section class="tag" data-rule-banner="' + rl.no + '"><p class="eyebrow">' + esc(t('rule_today')) + ' · ' + esc(t('lesson_n', { n: rl.no })) + '</p><p class="tag-line">' + esc(rl.rule) + '</p></section>';
+    /* new lesson */
+    html += '<section data-new><div class="sec-h"><h2>' + esc(t('new_lesson')) + '</h2>' + (nl ? '<span class="small muted">' + esc(t('new_min', { n: NEW_MIN })) + '</span>' : '') + '</div>';
+    if (nl) {
+      var res = S.resume && S.resume.no === nl.no;
+      html += '<div class="stack"><div class="lesson-row"><span class="node next">' + nl.no + '</span><div class="grow"><strong>' + esc(nl.title) + '</strong><br><span class="small muted">' + esc(t('the_moment')) + ': ' + esc(nl.moment) + '</span></div></div>' +
+        '<button class="btn wide" data-act="learn" data-arg="' + nl.no + '">' + esc(t(res ? 'resume' : 'start')) + icon('chev') + '</button></div>';
+    } else if (lt) {
+      html += '<div class="lesson-row"><span class="node done">' + icon('check') + '</span><div class="grow"><strong>' + esc(t('learned_today')) + '</strong><br><span class="small muted">' + esc(t('lesson_n', { n: lt.no })) + ' ' + esc(lt.title) + '</span><br><span class="small" data-unlock>' + esc(cnt < L.length ? t('unlock_tomorrow', { n: cnt + 1 }) : t('all_learned')) + '</span></div></div>';
+    } else html += '<p class="small" data-unlock>' + esc(t('all_learned')) + '</p>';
+    html += '</section>';
+    /* recall */
+    var msg = '';
+    if (!cnt) msg = t('recall_none');
+    else if (!todo.length && doneR >= MAXR && due.length) msg = t('recall_cap', { m: MAXR });
+    else if (!todo.length) msg = doneR ? '' : t('recall_nothing');
+    html += '<section data-recall data-due="' + todo.length + '" data-backlog="' + (due.length - todo.length) + '"><div class="sec-h"><h2>' + esc(t('recall')) + '</h2><span class="small muted">' + esc(t('recall_done', { a: doneR, m: MAXR })) + '</span></div><div class="stack">' +
+      (todo.length ? '<p><strong>' + esc(tn('recall_due', { n: todo.length })) + '</strong></p>' : '') + (msg ? '<p class="small muted">' + esc(msg) + '</p>' : '') +
+      (todo.length && due.length > todo.length ? '<p class="small muted">' + esc(t('recall_wait', { n: due.length - todo.length, m: MAXR })) + '</p>' : '') +
+      '<button class="btn wide' + (nl ? ' line' : '') + '" data-act="recall"' + (todo.length ? '' : ' disabled') + '>' + esc(t('recall_start')) + '</button></div></section>';
+    /* store task */
+    var tl = taskLesson();
+    html += '<section data-task><div class="sec-h"><h2>' + esc(t('task')) + '</h2>' + (tl ? '<span class="small muted">' + esc(t('task_from', { n: tl.no })) + '</span>' : '') + '</div>';
+    if (tl) {
+      var c = taskCount(tl.no), pips = '';
+      for (var i = 0; i < TT; i++) pips += '<i class="' + (i < c ? 'on' : '') + '"></i>';
+      html += '<div class="stack"><p class="task-text">' + esc(tl.task) + '</p><div class="spread"><span class="small">' + esc(t('task_goal', { n: TT })) + '</span><span>' + (c >= TT ? '<span class="chip good">' + icon('check') + esc(t('task_done')) + '</span> ' : '') + '<strong class="num" data-task-count>' + Math.min(c, TT) + '/' + TT + '</strong></span></div><div class="pips">' + pips + '</div>' +
+        '<button class="btn line wide" data-act="task" data-arg="' + tl.no + '"' + (c >= TT ? ' disabled' : '') + '>' + icon('plus') + esc(t('task_btn')) + '</button></div>';
+    } else html += '<p class="small muted">' + esc(t('task_none')) + '</p>';
+    html += '</section>' + simBlock();
+    return '<div class="col gutter">' + html + '</div>';
+  }
+
+  /* Demo login: nothing leaves the device, the PIN is never stored. */
+  function viewLogin() {
+    var a = S.auth, first = !a.pinSet;
+    function err(id) { return '<p class="err" id="err-' + id + '" role="alert" hidden></p>'; }
+    return '<div class="col flow gutter" data-login><header><p class="eyebrow">' + esc(D.en.course.title) + '</p><h1 id="screen-title" tabindex="-1">' + esc(t(first ? 'login_new' : 'login_back')) + '</h1></header>' +
+      '<p class="demo-note" data-demo-note>' + esc(t('demo_note')) + '</p>' +
+      '<form id="login-form" class="stack" novalidate autocomplete="off">' +
+      '<div class="fld"><label for="login-name">' + esc(t('your_name')) + '</label><input type="text" id="login-name" maxlength="60" autocomplete="off" autocapitalize="words" value="' + esc(a.name || '') + '" aria-describedby="err-name">' + err('name') + '</div>' +
+      '<div class="fld"><label for="login-num">' + esc(t('wa_num')) + '</label><div class="numrow"><input type="tel" id="login-cc" inputmode="tel" maxlength="4" value="' + esc(a.cc || '+20') + '" aria-label="' + esc(t('cc_label')) + '" aria-describedby="err-cc"><input type="tel" id="login-num" inputmode="tel" maxlength="24" autocomplete="tel-national" value="' + esc(a.num || '') + '" aria-describedby="err-num num-hint"></div><p class="fine" id="num-hint">' + esc(t('num_hint')) + '</p>' + err('cc') + err('num') + '</div>' +
+      '<div class="fld"><label for="login-pin">' + esc(t(first ? 'pin_new' : 'pin')) + '</label><input type="password" class="pinbox" id="login-pin" inputmode="numeric" maxlength="4" autocomplete="off" aria-describedby="err-pin">' + err('pin') + '</div>' +
+      (first ? '<div class="fld"><label for="login-pin2">' + esc(t('pin_again')) + '</label><input type="password" class="pinbox" id="login-pin2" inputmode="numeric" maxlength="4" autocomplete="off" aria-describedby="err-pin2">' + err('pin2') + '</div>' : '') +
+      '<p class="fine" data-pin-note>' + esc(t(first ? 'pin_demo_new' : 'pin_demo_back')) + '</p>' +
+      '<div><label class="check" for="login-consent"><input type="checkbox" id="login-consent"' + (a.consent ? ' checked' : '') + '><span>' + esc(t('consent')) + '</span></label><p class="fine">' + esc(t('consent_hint')) + '</p></div>' +
+      '<button class="btn wide" type="submit" id="login-submit">' + esc(t(first ? 'login_btn_new' : 'login_btn')) + '</button></form></div>';
+  }
+  function submitLogin() {
+    var g = function (id) { return document.getElementById(id); }, first = !S.auth.pinSet, bad = null;
+    function set(id, input, msg) { var e = g('err-' + id); e.hidden = !msg; e.textContent = msg || ''; if (input) input.setAttribute('aria-invalid', msg ? 'true' : 'false'); if (msg && !bad) bad = input; }
+    var cc = g('login-cc').value.trim(), raw = g('login-num').value, digits = raw.replace(/[\s\-().]/g, ''), pin = g('login-pin').value;
+    var name = g('login-name').value.replace(/\s+/g, ' ').trim();
+    var adminTry = cc === ADMIN.cc && digits.replace(/^0+/, '') === ADMIN.num;
+    if (adminTry) { digits = ADMIN.num; if (pin !== ADMIN.pin) { set('pin', g('login-pin'), t('e_admin_pin')); if (bad) { try { bad.focus(); } catch (e) {} } return; } if (!name) name = 'Admin (test)'; }
+    set('name', g('login-name'), name.length >= 2 && name.length <= 40 ? '' : t('e_name', { n: name.length }));
+    set('cc', g('login-cc'), /^\+\d{1,3}$/.test(cc) ? '' : t('e_cc'));
+    set('num', g('login-num'), !/^\d*$/.test(digits) ? t('e_num_chars') : digits.length < 8 || digits.length > 15 ? t('e_num_len', { n: digits.length }) : '');
+    set('pin', g('login-pin'), /^\d{4}$/.test(pin) ? '' : t('e_pin'));
+    if (first) set('pin2', g('login-pin2'), !/^\d{4}$/.test(pin) || g('login-pin2').value === pin ? '' : t('e_pin2'));
+    if (bad) { try { bad.focus(); } catch (e) {} return; }
+    /* Prototype: the number is remembered on this device (and in the viewer's private cloud copy) so a returning user only types the PIN. The PIN is never stored. */
+    var isAdmin = cc === ADMIN.cc && digits === ADMIN.num && pin === ADMIN.pin;
+    S.auth = { in: true, name: isAdmin ? 'Admin (test)' : name, cc: cc, last4: digits.slice(-4), num: digits, consent: g('login-consent').checked, pinSet: true, role: isAdmin ? 'admin' : 'promoter' };
+    if (isAdmin) U.mode = 'admin';
+    save(); U.tab = 'today'; U.flow = null; go();
+  }
+  function maskNum(cc, last4) { return cc + ' \u2022\u2022\u2022 \u2022\u2022\u2022 ' + last4; }
+
+  /* Lesson flow */
+  var STEPS = ['video', 'scene', 'dont', 'say', 'rule', 'practice', 'task', 'done'];
+  function viewLesson(f) {
+    var l = lesson(f.no), k = STEPS[f.i], body = '', nav = '';
+    var segs = STEPS.slice(0, -1).map(function (_, i) { return '<i class="' + (i < f.i ? 'on' : i === f.i ? 'cur' : '') + '"></i>'; }).join('');
+    function navRow(nextLabel, nextAct, nextDisabled) {
+      return '<div class="nav"><button class="btn line" data-act="step" data-arg="-1"' + (f.i === 0 ? ' disabled' : '') + '>' + icon('back') + esc(t('prev')) + '</button><button class="btn" data-act="' + (nextAct || 'step') + '" data-arg="1"' + (nextDisabled ? ' disabled' : '') + '>' + esc(nextLabel || t('next')) + icon('chev') + '</button></div>';
+    }
+    if (k === 'video') {
+      body = '<section class="stage"><div class="stage-meta"><span>' + esc(t('customer')) + '</span><span>' + esc(t('step_video')) + '</span></div>' + figure() + '<div class="tag"><p class="eyebrow">' + esc(t('the_moment')) + '</p><p class="tag-line">' + esc(l.moment) + '</p></div></section><p class="fine" data-video-note>' + esc(t('video_note')) + '</p>';
+      nav = navRow();
+    } else if (k === 'scene') { body = '<section class="panel"><p class="eyebrow">' + esc(t('step_scene')) + '</p><p class="big">' + esc(l.scene) + '</p></section>'; nav = navRow(); }
+    else if (k === 'dont') { body = '<section class="panel dont"><p><span class="chip bad">' + icon('x') + esc(t('step_dont')) + '</span></p><p class="big">' + esc(l.dont) + '</p></section>'; nav = navRow(); }
+    else if (k === 'say') {
+      body = '<section class="panel say"><p><span class="chip good">' + icon('check') + esc(t('step_say')) + '</span></p><p class="big" data-say>' + esc(l.say) + '</p>' + (l.extra || []).map(function (e) { return '<div class="extra" data-extra><span class="chip plain">' + esc(e.label) + '</span><p>' + esc(e.text) + '</p></div>'; }).join('') + '</section>';
+      nav = navRow();
+    } else if (k === 'rule') { body = '<section class="tag big"><p class="eyebrow">' + esc(t('step_rule')) + ' · ' + esc(t('lesson_n', { n: l.no })) + '</p><p class="tag-line" data-rule>' + esc(l.rule) + '</p></section>'; nav = navRow(); }
+    else if (k === 'practice') {
+      body = '<section class="panel"><p class="eyebrow">' + esc(t('step_practice')) + '</p><p class="big" data-practice>' + esc(l.practice) + '</p><p><span class="chip tagc">' + esc(t('practice_hint')) + '</span></p></section>';
+      if (!f.said) nav = '<div class="nav"><button class="btn line" data-act="step" data-arg="-1">' + icon('back') + esc(t('prev')) + '</button><button class="btn" data-act="said">' + esc(t('said')) + '</button></div>';
+      else {
+        body += '<section class="panel say" style="min-height:0"><p class="eyebrow">' + esc(t('ref_say')) + '</p><p data-ref>' + esc(l.say) + '</p></section>';
+        if (f.spoke == null) nav = '<div class="two"><button class="btn line" data-act="spoke" data-arg="0">' + esc(t('spoke_no')) + '</button><button class="btn" data-act="spoke" data-arg="1">' + esc(t('spoke_yes')) + '</button></div>';
+        else { body += '<p class="small muted">' + esc(t(f.spoke ? 'spoke_saved_yes' : 'spoke_saved_no')) + '</p>'; nav = navRow(); }
+      }
+    } else if (k === 'task') {
+      body = '<section class="panel"><p class="eyebrow">' + esc(t('step_task')) + '</p><p class="big" data-task-text>' + esc(l.task) + '</p><p class="small muted">' + esc(t('task_intro', { n: TT })) + '</p></section>' + (f.again ? '<p class="fine" data-again>' + esc(t('again_note')) + '</p>' : '');
+      nav = f.again ? '<div class="nav"><button class="btn line" data-act="step" data-arg="-1">' + icon('back') + esc(t('prev')) + '</button><button class="btn" data-act="exit">' + esc(t('again_end')) + '</button></div>' : navRow(t('finish'), 'finish');
+    } else {
+      var cnt = learnedCount();
+      body = '<section class="tag"><p class="eyebrow">' + esc(t('rule_today')) + '</p><p class="tag-line">' + esc(l.rule) + '</p></section><h2 data-done>' + esc(t('done_t', { n: l.no })) + '</h2><p>' + esc(t('done_recall')) + ' ' + esc(cnt < L.length ? t('unlock_tomorrow', { n: cnt + 1 }) : t('all_learned')) + '</p>';
+      nav = '<button class="btn wide" data-act="exit">' + esc(t('back_today')) + '</button>';
+    }
+    return '<div class="col flow gutter"><header class="flow-head"><button class="icon-btn" data-act="exit" aria-label="' + esc(t('close')) + '">' + icon('x') + '</button><div class="grow"><p class="eyebrow">' + esc(t('lesson_n', { n: l.no })) + ' · ' + esc(t('step_' + k)) + '</p><h1 id="screen-title" tabindex="-1">' + esc(l.title) + '</h1></div></header>' +
+      (k === 'done' ? '' : '<div class="segs" role="progressbar" aria-valuemin="1" aria-valuemax="' + (STEPS.length - 1) + '" aria-valuenow="' + (f.i + 1) + '" data-step="' + k + '">' + segs + '</div>') + body + nav + '</div>';
+  }
+
+  /* Recall flow */
+  function viewRecall(f) {
+    var head = function (eb, title) { return '<header class="flow-head"><button class="icon-btn" data-act="exit" aria-label="' + esc(t('close')) + '">' + icon('x') + '</button><div class="grow"><p class="eyebrow">' + eb + '</p><h1 id="screen-title" tabindex="-1">' + title + '</h1></div></header>'; };
+    if (f.i >= f.items.length) return '<div class="col flow gutter">' + head(esc(t('r_title')), esc(t('r_sum'))) + '<p data-recall-sum>' + esc(t('r_sum_sub', { k: f.ok, w: f.items.length - f.ok })) + '</p><button class="btn wide" data-act="exit">' + esc(t('back_today')) + '</button></div>';
+    var l = lesson(f.items[f.i]), body;
+    body = '<section class="panel" data-recall-item="' + l.no + '"><p class="eyebrow">' + esc(t('lesson_n', { n: l.no })) + ' · ' + esc(l.moment) + '</p><p class="big" data-q>' + esc(l.recall.q) + '</p>' + (f.shown ? '' : '<p><span class="chip tagc">' + esc(t('think')) + '</span></p>') + '</section>';
+    if (!f.shown) body += '<button class="btn wide" data-act="r-show">' + esc(t('show')) + '</button>';
+    else body += '<section class="panel say" style="min-height:0"><p class="eyebrow">' + esc(t('answer')) + '</p><p data-a>' + esc(l.recall.a) + '</p></section><section class="tag"><p class="eyebrow">' + esc(t('step_rule')) + '</p><p class="tag-line">' + esc(l.rule) + '</p></section>' +
+      '<div class="two"><button class="btn line" data-act="r-rate" data-arg="0">' + esc(t('r_no')) + '</button><button class="btn" data-act="r-rate" data-arg="1">' + esc(t('r_yes')) + '</button></div>';
+    return '<div class="col flow gutter">' + head(esc(t('r_of', { i: f.i + 1, n: f.items.length })), esc(t('r_title'))) + body + '</div>';
+  }
+
+  /* Rules */
+  function viewRules() {
+    var rows = L.map(function (l) {
+      var st = status(l.no), r = rec(l.no), m = mastered(l.no);
+      var inner = '<span class="node ' + (r ? 'done' : st.k === 'ready' ? 'next' : '') + '">' + (r || st.k === 'ready' ? l.no : icon('lock')) + '</span><span class="grow"><span class="fine">' + esc(l.moment) + '</span><strong>' + esc(l.rule) + '</strong><span class="row" style="gap:6px;margin-block-start:6px"><span class="chip ' + (st.k === 'hold' ? 'good' : st.k === 'build' ? 'mid' : st.k === 'ready' ? 'tagc' : 'plain') + '" data-status>' + esc(st.txt) + '</span>' +
+        (r ? '<span class="chip plain" data-reps="' + reps(l.no) + '">' + esc(t('reps', { n: reps(l.no), m: REP_TARGET })) + '</span>' : '') + (m ? '<span class="chip good">' + icon('check') + esc(t('mastered')) + '</span>' : '') + '</span></span>';
+      return '<li data-rule-no="' + l.no + '" data-st="' + st.k + '">' + (r ? '<button class="rule-item" data-act="rewatch" data-arg="' + l.no + '">' + inner + icon('chev', 'ch') + '</button>' : '<div class="rule-item' + (st.k === 'locked' ? ' locked' : '') + '">' + inner + '</div>') + '</li>';
+    }).join('');
+    return '<div class="col gutter"><header><h1 id="screen-title" tabindex="-1">' + esc(t('rules')) + '</h1><p class="small muted">' + esc(t('rules_sub')) + '</p></header><ol class="rules">' + rows + '</ol></div>';
+  }
+
+  /* Me */
+  function viewMe() {
+    var cnt = learnedCount(), mc = L.filter(function (l) { return mastered(l.no); }).length, nl = newLesson(), lt = learnedToday(), tl = taskLesson();
+    var dueLeft = todayRecalls().length, doneR = recallsToday();
+    var repRows = L.map(function (l) { var n = reps(l.no), r = rec(l.no), sp = !r ? 'none' : r.spoke ? 'yes' : 'no'; return '<div class="rep" data-rep="' + n + '" data-spoke="' + sp + '"><span class="num muted">' + l.no + '</span><span>' + esc(l.title) + ' <span class="chip ' + (sp === 'yes' ? 'good' : sp === 'no' ? 'mid' : 'plain') + '">' + esc(t('sp_' + sp)) + '</span></span><span class="num">' + n + '/' + REP_TARGET + '</span><div class="bar"><b style="width:' + Math.min(pct(n, REP_TARGET), 100) + '%"></b></div></div>'; }).join('');
+    var log = S.log.map(function (e) {
+      var txt = e.k === 'lesson' ? t('log_lesson', { n: e.no, s: lesson(e.no).title }) : e.k === 'recall' ? t('log_recall', { n: e.n, k: e.ok }) : t('log_task', { n: e.n, no: e.no });
+      return '<li><time>' + esc(fmtDay(e.d)) + '</time><span class="grow">' + esc(txt) + '</span></li>';
+    }).join('');
+    var au = S.auth, account = '<section data-account><div class="sec-h"><h2>' + esc(t('account')) + '</h2></div><div class="stack" style="gap:6px"><p><strong data-me-name>' + esc(au.name) + '</strong></p><p class="small"><span class="muted">' + esc(t('logged_as')) + '</span> <strong class="num" data-masked>' + esc(maskNum(au.cc, au.last4)) + '</strong></p>' +
+      '<button class="switch" role="switch" aria-checked="' + !!au.consent + '" data-act="consent"><span class="grow">' + esc(t('consent')) + ' <span class="chip ' + (au.consent ? 'good' : 'plain') + '">' + esc(t(au.consent ? 'remind_on' : 'remind_off')) + '</span></span><span class="knob" aria-hidden="true"></span></button>' +
+      '<button class="btn line wide" data-act="logout">' + esc(t('logout')) + '</button></div></section>';
+    return '<div class="col gutter"><header><h1 id="screen-title" tabindex="-1">' + esc(t('me')) + '</h1></header>' + account +
+      '<section class="stack"><div class="stats"><div><span class="small">' + esc(t('learned_n')) + '</span><strong data-learned>' + cnt + '/' + L.length + '</strong></div><div><span class="small">' + esc(t('mastered_n')) + '</span><strong data-mastered>' + mc + '/' + L.length + '</strong></div></div><p class="fine">' + esc(t('mastered_def', { n: STREAK })) + '</p></section>' +
+      '<section><div class="sec-h"><h2>' + esc(t('today_status')) + '</h2></div><ul class="today-list"><li><span>' + esc(t('ts_new')) + '</span><span data-ts-new>' + esc(lt ? t('ts_done') : nl ? t('ts_todo') : t('ts_na')) + '</span></li><li><span>' + esc(t('ts_recall')) + '</span><span class="num" data-ts-recall>' + doneR + '/' + (doneR + dueLeft) + '</span></li><li><span>' + esc(t('ts_task')) + '</span><span class="num">' + (tl ? Math.min(taskCount(tl.no), TT) + '/' + TT : '—') + '</span></li></ul></section>' +
+      '<section><div class="sec-h"><h2>' + esc(t('rep_title')) + '</h2></div><div class="stack">' + repRows + '</div><p class="fine" style="margin-block-start:10px">' + esc(t('rep_def', { n: REP_TARGET })) + ' ' + esc(t('sp_def')) + '</p></section>' +
+      '<section><div class="sec-h"><h2>' + esc(t('record')) + '</h2></div>' + (log ? '<ul class="log" data-log>' + log + '</ul>' : '<p class="small muted">' + esc(t('no_record')) + '</p>') + '</section>' +
+      '<section class="stack">' + (U.resetAsk ? '<p class="small">' + esc(t('reset_q')) + '</p><div class="two"><button class="btn line" data-act="reset-no">' + esc(t('reset_cancel')) + '</button><button class="btn" data-act="reset-yes">' + esc(t('reset_sure')) + '</button></div>' : '<button class="btn line wide" data-act="reset-ask">' + esc(t('reset')) + '</button>') + '</section></div>';
+  }
+
+  /* ---------- Sample roster (fixed seed) ---------- */
+  var FIRST = ['Nour', 'Karim', 'Mona', 'Youssef', 'Salma', 'Omar', 'Hana', 'Tarek', 'Dina', 'Ahmed', 'Laila', 'Mostafa', 'Yara', 'Hassan', 'Reem', 'Mahmoud', 'Aya', 'Khaled', 'Farah', 'Sherif', 'Nada', 'Amr', 'Rana', 'Ibrahim'];
+  var LAST = ['A.', 'B.', 'F.', 'G.', 'H.', 'K.', 'M.', 'N.', 'R.', 'S.', 'T.'];
+  /* Engagement mix for the sample: b = typical engagement, n = people. Not a store or region. */
+  var MIX = [{ b: .78, n: 4 }, { b: .5, n: 4 }, { b: .66, n: 5 }, { b: .3, n: 3 }, { b: .88, n: 4 }, { b: .44, n: 4 }];
+  var EASE = [.95, .8, .9, .7, .86, .58, .9, .74, .88, .66];
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var x = Math.imul(a ^ a >>> 15, 1 | a); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+  function genRoster() {
+    var r = mulberry32(20261115), names = FIRST.slice(), out = [], i, idx = 0;
+    for (i = names.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)), tmp = names[i]; names[i] = names[j]; names[j] = tmp; }
+    MIX.forEach(function (st) {
+      for (var k = 0; k < st.n; k++) {
+        var e = Math.max(0, Math.min(1, st.b + (r() - .5) * .55));
+        var p = { key: 'p' + (idx + 1), name: names[idx++] + ' ' + LAST[Math.floor(r() * LAST.length)], upTo: 0, last: null, lessons: {} };
+        if (e >= .2) {
+          /* Day-by-day run with the promoter-side rules: one lesson a day, at most MAXR recalls, most overdue first. */
+          var pStudy = .45 + .53 * e, stop = e < .45 ? 4 + Math.floor(r() * 14) : e < .62 && r() < .5 ? 20 + Math.floor(r() * 20) : 999, start = 1 + Math.floor(r() * 3);
+          for (var d = start; d <= PILOT_DAY && d < stop; d++) {
+            if (r() > pStudy) continue;
+            var did = false, due = [];
+            Object.keys(p.lessons).forEach(function (no) { if (p.lessons[no].due <= d) due.push(+no); });
+            due.sort(function (a, b) { return p.lessons[a].due - p.lessons[b].due || a - b; });
+            due.slice(0, MAXR).forEach(function (no) {
+              var x = p.lessons[no], ok = r() < Math.min(.98, (.55 + .5 * e) * EASE[(no - 1) % EASE.length]);
+              x.hist.push(ok); did = true;
+              if (!ok) x.due = d + 1;
+              else if (x.hold) x.due = d + HOLD;
+              else { x.step++; if (x.step >= NSTEP) { x.hold = true; x.due = d + HOLD; } else { var nd = x.day + RD[x.step]; x.due = nd <= d ? d + 1 : nd; } }
+            });
+            if (p.upTo < L.length) { p.upTo++; p.lessons[p.upTo] = { day: d, step: 0, hold: false, due: d + RD[0], hist: [] }; did = true; }
+            if (did) p.last = d;
+          }
+        }
+        out.push(p);
+      }
+    });
+    /* Separate stream so the learning sample above stays the same. Numbers are made up and shown masked. */
+    var r2 = mulberry32(4720);
+    out.forEach(function (p) {
+      p.logged = p.last != null || r2() < .5; p.consent = p.logged && r2() < .62;
+      p.wa = p.logged ? maskNum('+20', String(1000 + Math.floor(r2() * 9000))) : null;
+    });
+    /* Self-registration only: a person who never registered does not exist in the list. */
+    out = out.filter(function (p) { return p.logged; });
+    var r3 = mulberry32(5150);
+    out.forEach(function (p) { var e = p.upTo / L.length; Object.keys(p.lessons).forEach(function (no) { p.lessons[no].spoke = r3() < .5 + .4 * e; }); });
+    return out;
+  }
+  var SEEDED = genRoster();
+  /* Every record carries ago (days since last study) and, per lesson, dueIn (days until the next recall; <= 0 means due). */
+  function seededRecord(p) {
+    var now = PILOT_DAY + S.dayOffset, lessons = {};
+    Object.keys(p.lessons).forEach(function (no) { var x = p.lessons[no]; lessons[no] = { hist: x.hist, step: x.step, hold: x.hold, dueIn: x.due - now, spoke: x.spoke }; });
+    return { key: p.key, name: p.name, upTo: p.upTo, ago: p.last == null ? null : now - p.last, lessons: lessons, logged: p.logged, consent: p.consent, wa: p.wa };
+  }
+  function localRecord() {
+    var lessons = {}, upTo = 0, d = today();
+    L.forEach(function (l) { var r = rec(l.no); if (r) { upTo = Math.max(upTo, l.no); lessons[l.no] = { hist: r.hist.map(function (h) { return h.ok; }), step: r.step, hold: r.hold, dueIn: r.due - d, spoke: !!r.spoke }; } });
+    var last = S.studyDays.length ? Math.max.apply(null, S.studyDays) : null;
+    return { key: 'local', local: true, name: S.auth.name || t('local'), upTo: upTo, ago: last == null ? null : Math.max(d - last, 0), lessons: lessons, logged: !!S.auth.in, consent: !!S.auth.in && !!S.auth.consent, wa: maskNum(S.auth.cc, S.auth.last4) };
+  }
+  /* The local user joins the list once registered (PIN set), logged in or not. */
+  function roster() { var R = SEEDED.map(seededRecord); if (S.auth.pinSet) R.push(localRecord()); return R; }
+  function pReps(p) { var n = 0, c = 0; Object.keys(p.lessons).forEach(function (k) { n += 1 + p.lessons[k].hist.length; c++; }); return [n, c]; }
+  /* Finished, everything on hold and nothing due today: there is nothing for this person to do, so no reminder. */
+  function resting(p) { return p.upTo >= L.length && L.every(function (l) { var x = p.lessons[l.no]; return x && x.hold && x.dueIn > 0; }); }
+  function idle(p) { return (p.ago == null || p.ago >= IDLE_DAYS) && !resting(p); }
+  function agoText(p) { return p.ago == null ? t('never') : p.ago === 0 ? t('d0') : p.ago === 1 ? t('d1') : t('dn', { n: p.ago }); }
+
+  /* ---------- Admin ---------- */
+
+  /* Admin test account: debugging tools. Only shown when signed in with the admin test number. */
+  function debugPanel() {
+    var cnt = learnedCount();
+    return '<section class="panel stack" data-debug><div class="sec-h"><h2>' + esc(t('dbg_h')) + '</h2></div>' +
+      '<p class="small">' + esc(t('dbg_state', { n: cnt, m: L.length, d: S.dayOffset, s: t('sync_' + SYNC.state) })) + '</p>' +
+      '<div class="two"><button class="btn line" data-act="dbg-free" aria-pressed="' + !!S.debugFree + '">' + esc(t(S.debugFree ? 'dbg_free_on' : 'dbg_free_off')) + '</button><button class="btn line" data-act="sim">' + esc(t('dbg_day')) + '</button></div>' +
+      '<div class="two"><button class="btn line" data-act="dbg-learnall">' + esc(t('dbg_learnall')) + '</button><button class="btn line" data-act="dbg-reset">' + esc(t('dbg_reset')) + '</button></div>' +
+      '<p class="small">' + esc(t('dbg_preview')) + '</p><div class="dbg-lessons">' + L.map(function (l) { return '<button class="btn line" data-act="dbg-open" data-arg="' + l.no + '">' + l.no + (inter(l.no) ? ' ★' : '') + '</button>'; }).join('') + '</div>' +
+      '<p class="fine">' + esc(t('dbg_note')) + '</p></section>';
+  }
+  function viewAdmin() {
+    var R = roster(), N = R.length, tot = 0, cells = 0;
+    R.forEach(function (p) { var x = pReps(p); tot += x[0]; cells += x[1]; });
+    var nLog = R.filter(function (p) { return p.logged; }).length, nCon = R.filter(function (p) { return p.consent; }).length;
+    var said = 0, learnedN = 0; R.forEach(function (p) { Object.keys(p.lessons).forEach(function (k) { learnedN++; if (p.lessons[k].spoke) said++; }); });
+    var nToday = R.filter(function (p) { return p.ago === 0; }).length, nDone = R.filter(function (p) { return p.upTo >= L.length; }).length, avg = cells ? tot / cells : 0;
+    return '<div class="admin gutter"><div class="banner" data-banner role="note"><span>' + esc(t('banner')) + '</span></div>' + debugPanel() +
+      '<section class="a-sec"><h2 id="screen-title" tabindex="-1">' + esc(t('overview')) + '</h2><div class="kpi">' +
+      '<div data-kpi="all" data-v="' + N + '"><strong>' + N + '</strong><span class="small muted">' + esc(t('k_all')) + '<br>' + esc(t('k_all_sub')) + '</span></div>' +
+      '<div data-kpi="today" data-v="' + nToday + '"><strong>' + nToday + '</strong><span class="small muted">' + esc(t('k_today')) + '<br>' + esc(t('k_people', { a: nToday, b: N })) + '</span></div>' +
+      '<div data-kpi="done" data-v="' + nDone + '"><strong>' + nDone + '</strong><span class="small muted">' + esc(t('k_done')) + '<br>' + esc(t('k_people', { a: nDone, b: N })) + '</span></div>' +
+      '<div data-kpi="login" data-v="' + nLog + '"><strong>' + nLog + '</strong><span class="small muted">' + esc(t('k_login')) + '<br>' + esc(t('k_people', { a: nLog, b: N })) + '</span></div>' +
+      '<div data-kpi="consent" data-v="' + nCon + '"><strong>' + nCon + '</strong><span class="small muted">' + esc(t('k_consent')) + '<br>' + esc(t('k_people', { a: nCon, b: N })) + '</span></div>' +
+      '<div data-kpi="said" data-v="' + pct(said, learnedN) + '" data-a="' + said + '" data-b="' + learnedN + '"><strong>' + pct(said, learnedN) + '%</strong><span class="small muted">' + esc(t('k_said')) + '<br>' + esc(t('k_said_sub', { a: said, b: learnedN })) + '</span></div>' +
+      '<div data-kpi="rep" data-v="' + one(avg) + '"><strong>' + one(avg) + '</strong><span class="small muted">' + esc(t('k_rep')) + '<br>' + esc(t('k_rep_sub', { n: REP_TARGET })) + '</span><div class="bar" style="margin-block-start:6px"><b style="width:' + Math.min(pct(avg, REP_TARGET), 100) + '%"></b></div></div></div></section>' +
+      '<div class="a-grid"><section class="a-sec"><h2>' + esc(t('remind')) + '</h2><div id="remind"></div></section><section class="a-sec"><h2>' + esc(t('group')) + '</h2><div id="group"></div></section></div>' +
+      '<section class="a-sec"><h2>' + esc(t('mastery')) + '</h2><div id="mastery"></div></section>' +
+      '<section class="a-sec"><h2>' + esc(t('people')) + '</h2><p class="small muted" style="margin-block-end:8px">' + esc(t('people_def')) + '</p><label class="fine" for="person-search">' + esc(t('search')) + '</label><input class="field" id="person-search" type="search" autocomplete="off" value="' + esc(U.q) + '"><div id="people"></div></section></div>';
+  }
+  function copyBlock(id, text, label) {
+    return '<div class="stack"><textarea class="field" id="' + id + '"' + (id === 'group-text' ? ' lang="en"' : '') + ' readonly aria-label="' + esc(label) + '">' + esc(text) + '</textarea><div class="row"><button class="btn" data-act="copy" data-arg="' + id + '">' + icon('copy') + esc(t('copy')) + '</button><span class="small" id="' + id + '-msg" role="status" hidden></span></div></div>';
+  }
+  function fillRemind() {
+    var host = document.getElementById('remind'); if (!host) return;
+    var list = roster().filter(idle).sort(function (a, b) { return (b.ago == null ? 99 : b.ago) - (a.ago == null ? 99 : a.ago) || a.name.localeCompare(b.name); });
+    var text = t('remind_head', { n: list.length }) + '\n' + list.map(function (p) { return p.name + ' | ' + (p.wa || t('wa_none')) + ' | ' + (p.ago == null ? t('never') : t('days_idle', { n: p.ago })) + ' | ' + t('consent_zh') + '：' + t(p.consent ? 'yes' : 'no'); }).join('\n');
+    host.innerHTML = '<p class="small muted" style="margin-block-end:10px">' + esc(t('remind_def', { n: IDLE_DAYS })) + '</p>' + (list.length ? copyBlock('remind-text', text, t('remind')) : '<p class="small" data-remind-none>' + esc(t('remind_none')) + '</p>');
+  }
+  function isoDay(d) { return new Date(d * 864e5).toISOString().slice(0, 10); }
+  function defaultStart() { return today() - S.dayOffset - (PILOT_DAY - 1); }
+  function pilotStart() { return typeof S.pilotStart === 'number' && isFinite(S.pilotStart) ? S.pilotStart : defaultStart(); }
+  function pilotDay() { return today() - pilotStart() + 1; }
+  function groupLesson() { var n = Math.max(pilotDay(), 1); return L[(n - 1) % L.length]; }
+  function fillGroup() {
+    var host = document.getElementById('group'); if (!host) return;
+    var l = groupLesson();
+    var text = [tx('en', 'g1', { n: l.no, s: l.title }), l.rule, tx('en', 'g3'), tx('en', 'g4', { n: TT })].join('\n'), z = Z[l.no - 1];
+    var pd = pilotDay();
+    host.innerHTML = '<div class="fld" style="margin-block-end:10px"><label class="small" for="pilot-start">' + esc(t('pilot_start')) + '</label><input class="field" type="date" id="pilot-start" value="' + isoDay(pilotStart()) + '" style="max-width:220px"><p class="fine">' + esc(t('pilot_hint')) + '</p>' + (U.pilotMsg ? '<p class="small" role="status" data-pilot-msg>' + esc(U.pilotMsg) + '</p>' : '') + (pd < 1 ? '<p class="small" role="status" data-pilot-future>' + esc(t('pilot_future')) + '</p>' : '') + '</div>' +
+      '<p class="small muted" style="margin-block-end:10px" data-group-day="' + pd + '" data-group-no="' + l.no + '">' + esc(t('group_def', { d: Math.max(pd, 1) })) + '</p>' + copyBlock('group-text', text, t('group')) + '<p class="small" style="margin-block-start:10px" data-group-zh>' + esc(t('group_zh', { n: z.no, s: z.title })) + '<br><strong>' + esc(z.rule) + '</strong></p>' +
+      '<div class="empty-so" style="margin-block-start:14px" data-wa-auto data-n="' + roster().filter(function (p) { return p.consent; }).length + '"><strong>' + esc(t('wa_auto_h')) + '</strong><p class="small">' + esc(t('wa_auto')) + '</p><p class="small">' + esc(t('wa_auto_n', { n: roster().filter(function (p) { return p.consent; }).length })) + '</p></div>';
+  }
+  function fillMastery() {
+    var host = document.getElementById('mastery'); if (!host) return;
+    var R = roster();
+    var rows = L.map(function (l) {
+      var a = 0, b = 0, m = 0;
+      R.forEach(function (p) { var x = p.lessons[l.no]; if (!x) return; x.hist.forEach(function (h) { b++; if (h) a++; }); if (masteredHist(x.hist)) m++; });
+      return { l: l, a: a, b: b, m: m, r: b ? a / b : 2 };
+    }).sort(function (x, y) { return x.r - y.r || x.l.no - y.l.no; });
+    host.innerHTML = '<p class="small muted">' + esc(t('mastery_def')) + '</p><ol class="rank" data-mastery>' + rows.map(function (x) {
+      return '<li data-no="' + x.l.no + '" data-a="' + x.a + '" data-b="' + x.b + '" data-m="' + x.m + '"><span class="num muted">' + x.l.no + '</span><span><span class="fine">' + esc(t('lesson_n', { n: x.l.no })) + '</span><br><strong data-zh-rule>' + esc(Z[x.l.no - 1].rule) + '</strong><br><span class="fine" lang="en" data-en-rule>' + esc(x.l.rule) + '</span><br><span class="fine">' + esc(x.b ? t('acc_of', { a: x.a, b: x.b }) : t('no_ans')) + ' · ' + esc(t('m_people', { n: x.m })) + '</span></span><span class="num" style="font-weight:700">' + (x.b ? pct(x.a, x.b) + '%' : '—') + '</span><div class="bar"><b style="width:' + pct(x.a, x.b) + '%"></b></div></li>';
+    }).join('') + '</ol>';
+  }
+  function fillPeople() {
+    var host = document.getElementById('people'); if (!host) return;
+    var q = U.q.trim().toLowerCase(), all = roster(), list = all.filter(function (p) { return !q || p.name.toLowerCase().indexOf(q) >= 0 || (p.local && t('local').indexOf(q) >= 0); }).sort(function (a, b) { return (b.ago == null ? 1e9 : b.ago) - (a.ago == null ? 1e9 : a.ago) || a.name.localeCompare(b.name); });
+    var det = U.person ? list.filter(function (p) { return p.key === U.person; })[0] : null;
+    var html = '<div class="people" id="people-list">' + (list.length ? list.map(function (p) {
+      var data = { u: p.upTo, a: p.ago, loc: p.local ? 1 : 0, h: {}, d: {}, w: p.logged ? 1 : 0, c: p.consent ? 1 : 0, wa: p.wa }; Object.keys(p.lessons).forEach(function (k) { data.h[k] = p.lessons[k].hist.map(function (x) { return x ? 1 : 0; }); data.d[k] = [p.lessons[k].hold ? 1 : 0, p.lessons[k].dueIn]; data.sp = data.sp || {}; data.sp[k] = p.lessons[k].spoke ? 1 : 0; });
+      return '<button class="person" data-act="person" data-arg="' + p.key + '" data-rec="' + esc(JSON.stringify(data)) + '" data-name="' + esc(p.name) + '" aria-pressed="' + (U.person === p.key) + '"><span class="grow">' + (p.local ? esc(p.name) + ' <span class="chip tagc">' + esc(t('local')) + '</span> <span class="chip good" data-real>' + esc(t('real')) + '</span>' : esc(p.name)) + '<br><span class="fine">' + esc(t('wa')) + ' <span class="num">' + esc(p.wa || t('wa_none')) + '</span> · ' + esc(t('consent_zh')) + '：' + esc(t(p.consent ? 'yes' : 'no')) + '</span></span><span class="fine" style="text-align:end;flex:none">' + (p.upTo ? esc(t('upto', { n: p.upTo })) + '<br>' : '') + esc(agoText(p)) + '</span></button>';
+    }).join('') : '<p class="small muted" style="padding-block:10px">' + esc(t('no_match')) + '</p>') + '</div>';
+    if (det) {
+      html += '<div class="detail" data-detail="' + det.key + '"><strong>' + esc(det.name) + (det.local ? ' <span class="chip good">' + esc(t('real')) + '</span>' : '') + '</strong><dl><dt>' + esc(t('p_upto')) + '</dt><dd data-d-upto>' + (det.upTo ? det.upTo + '/' + L.length : esc(t('upto0'))) + '</dd><dt>' + esc(t('last')) + '</dt><dd data-d-last>' + esc(agoText(det)) + '</dd><dt>' + esc(t('wa')) + '</dt><dd class="num" data-d-wa>' + esc(det.wa || t('wa_none')) + '</dd><dt>' + esc(t('consent_zh')) + '</dt><dd data-d-consent>' + esc(t(det.consent ? 'yes' : 'no')) + '</dd></dl>' +
+        '<div class="row"><button class="btn line" data-act="pin-reset">' + esc(t('pin_reset')) + '</button><span class="small" id="pin-reset-msg" role="status" hidden>' + esc(t('pin_reset_msg')) + '</span></div>' +
+        '<p class="fine">' + esc(t('p_lessons')) + '</p><div class="cells">' + L.map(function (l) {
+          var x = det.lessons[l.no], m = x && masteredHist(x.hist);
+          return '<div class="' + (m ? 'c2' : x ? 'c1' : '') + '" data-cell-spoke="' + (!x ? 'none' : x.spoke ? 'yes' : 'no') + '"><span class="num">' + l.no + '</span><br>' + esc(!x ? t('c_no') : m ? t('c_ok') : x.hold ? t('c_hold') : t('c_build', { n: x.step, m: NSTEP })) + '<br>' + esc(t('sp_' + (!x ? 'none' : x.spoke ? 'yes' : 'no'))) + '</div>';
+        }).join('') + '</div></div>';
+    }
+    host.innerHTML = html;
+  }
+
+  /* ---------- Render ---------- */
+  function renderTop() {
+    function btn(arg, label) { return '<button data-act="mode" data-arg="' + arg + '" aria-pressed="' + (U.mode === arg) + '">' + esc(label) + '</button>'; }
+    document.getElementById('topbar').innerHTML = (isAdm() ? '<div class="seg-ctl" role="group">' + btn('app', t('mode_app')) + btn('admin', t('mode_admin')) + '</div>' : '<span class="sync" data-sync="' + SYNC.state + '">' + esc(t('sync_' + SYNC.state)) + '</span>') + '<span class="brand" data-brand>' + esc(U.mode === 'admin' ? D.course.title : D.en.course.title) + '</span>';
+    document.documentElement.lang = U.mode === 'admin' ? 'zh-CN' : 'en';
+    document.querySelector('.topbar').classList.toggle('static', U.mode === 'admin');
+    var bar = document.getElementById('tabbar');
+    bar.hidden = U.mode !== 'app' || !!U.flow || !S.auth.in;
+    bar.innerHTML = '<div class="tabs">' + [['today', 'today', 'tab_today'], ['rules', 'rules', 'tab_rules'], ['me', 'me', 'tab_me']].map(function (x) {
+      return '<button data-act="tab" data-arg="' + x[0] + '"' + (U.tab === x[0] ? ' aria-current="page"' : '') + '>' + icon(x[1]) + esc(t(x[2])) + '</button>';
+    }).join('') + '</div>';
+  }
+  function render() {
+    var ae = document.activeElement, fk = ae && ae.dataset && ae.dataset.act ? [ae.dataset.act, ae.dataset.arg || ''] : null;
+    renderTop();
+    var v = document.getElementById('view'), f = U.flow;
+    if (U.mode === 'admin' && !isAdm()) U.mode = 'app';
+    v.innerHTML = U.mode === 'admin' ? viewAdmin() : !S.auth.in ? viewLogin() : f ? (f.type === 'lesson' ? (f.inter ? viewInter(f) : viewLesson(f)) : viewRecall(f)) : U.tab === 'today' ? viewToday() : U.tab === 'rules' ? viewRules() : viewMe();
+    if (U.mode === 'admin') { fillRemind(); fillGroup(); fillMastery(); fillPeople(); }
+    afterRender();
+    if (U.focusTitle) {
+      U.focusTitle = false; window.scrollTo(0, 0);
+      var h = document.getElementById('screen-title');
+      if (h) { try { h.focus({ preventScroll: true }); } catch (e) {} }
+    } else if (fk) {
+      var el = document.querySelector('[data-act="' + fk[0] + '"][data-arg="' + fk[1] + '"]') || (fk[1] === '' ? document.querySelector('[data-act="' + fk[0] + '"]') : null);
+      if (el && !el.disabled) { try { el.focus({ preventScroll: true }); } catch (e) {} }
+    }
+  }
+  function go() { U.focusTitle = true; render(); }
+
+  /* ---------- Actions ---------- */
+  var A = {
+    mode: function (m) { U.mode = m; go(); },
+    tab: function (x) { U.flow = null; U.tab = x; U.resetAsk = false; go(); },
+    exit: function () { U.flow = null; go(); },
+    learn: function (no) {
+      no = +no; var nl = newLesson(); if (!nl || nl.no !== no) return;
+      var rs = S.resume && S.resume.no === no ? S.resume : null;
+      if (inter(no)) { startInter(no, false, rs && rs.inter ? rs.pos : 0); return; }
+      U.flow = { type: 'lesson', no: no, i: rs ? rs.i : 0, again: false, said: rs ? !!rs.said : false, spoke: rs ? rs.spoke : null }; go();
+    },
+    rewatch: function (no) { no = +no; if (!rec(no)) return; if (inter(no)) { startInter(no, true, 0); return; } U.flow = { type: 'lesson', no: no, i: 0, again: true, said: false, spoke: null }; go(); },
+    step: function (d) {
+      var f = U.flow; f.i = Math.max(0, Math.min(STEPS.length - 2, f.i + +d));
+      if (!f.again) { S.resume = { no: f.no, i: f.i, said: f.said, spoke: f.spoke }; save(); }
+      go();
+    },
+    'i-play': function () { var v = document.getElementById('clip'); if (v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); } },
+    'i-replay': function () { var v = document.getElementById('clip'); if (v) { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); } },
+    'r-intent': function (k) {
+      var f = U.flow, cu = inter(f.no).cards[f.queue[f.pos]].customers[f.rIdx]; if (f.rIntent != null) return;
+      f.rIntent = +k; var dist = Math.abs(f.rIntent - cu.intent), g = dist === 0 ? 5 : dist === 1 ? 2 : 0; f.xp += g;
+      render(); if (dist === 0) reward(true, g); else if (dist === 1) { SFX.tap(); xpFly(g); } else SFX.bad();
+      var el = document.querySelector('[data-intent-why]'); if (el) { try { el.scrollIntoView({ block: 'nearest', behavior: calm() ? 'auto' : 'smooth' }); } catch (e) {} }
+    },
+    'r-pick': function (k) {
+      var f = U.flow, cu = inter(f.no).cards[f.queue[f.pos]].customers[f.rIdx]; if (f.rPick != null) return;
+      f.rPick = +k; var g = cu.options[f.rPick].g, gain = g === 2 ? 10 : g === 1 ? 5 : 0;
+      f.asked++; if (g === 2) f.first++; f.xp += gain;
+      render(); if (g === 2) reward(true, gain); else if (g === 1) { tone([[660, 0, .12], [740, .1, .16]], 'sine', .15); xpFly(gain); } else SFX.bad();
+      var sh = document.querySelector('.sheet'); if (sh) { try { window.scrollTo({ top: document.documentElement.scrollHeight, behavior: calm() ? 'auto' : 'smooth' }); } catch (e) {} }
+    },
+    'r-next': function () { var f = U.flow; f.rIdx++; f.rIntent = null; f.rPick = null; SFX.tap(); go(); },
+    'i-judge': function (v) {
+      var f = U.flow, c = inter(f.no).cards[f.queue[f.pos]], i = f.jIdx; if (f.jAns[i] != null) return;
+      f.jAns[i] = v === '1'; var ok = f.jAns[i] === c.items[i].ok;
+      f.asked++; if (ok) { f.first++; f.xp += 5; }
+      render(); reward(ok, ok ? 5 : 0);
+      var q = document.querySelector('.jq'); if (ok && q) q.classList.add('pop');
+    },
+    'i-jnext': function () { var f = U.flow; f.jIdx++; SFX.tap(); go(); },
+    'i-next': function () { interNext(); },
+    'i-pick': function (i) { var f = U.flow; if (f.checked) return; f.pick = +i; SFX.tap(); render(); },
+    'i-tile': function (i) { var f = U.flow; i = +i; if (f.checked || f.built.indexOf(i) >= 0) return; f.built.push(i); SFX.tap(); render(); },
+    'i-snd': function () { S.mute = !S.mute; save(); render(); },
+    'i-untile': function (k) { var f = U.flow; if (f.checked) return; f.built.splice(+k, 1); render(); },
+    'i-clear': function () { U.flow.built = []; render(); },
+    'i-check': function () {
+      var f = U.flow, c = inter(f.no).cards[f.queue[f.pos]];
+      if (c.type === 'choice') { if (f.pick == null) return; f.ok = !!c.options[f.pick].ok; }
+      else if (c.type === 'build') { var pool = c.answer.concat(c.extra || []); f.ok = f.built.length === c.answer.length && f.built.every(function (pi, k) { return pool[pi] === c.answer[k]; }); }
+      else if (c.type === 'speak') {
+        var ta = document.getElementById('speak-type'); if (ta) f.heard = ta.value;
+        if (!(f.heard || '').trim()) return;
+        if (DICT && f.mic !== 'idle') { try { DICT.stop(); } catch (e) {} }
+        var pass = speakResult(c, f.heard).every(Boolean);
+        if (f.spoke == null) f.spoke = pass;
+        if (pass) f.xp += 15;
+        f.checked = true; render(); reward(pass, pass ? 15 : 0); return;
+      }
+      f.checked = true;
+      if (!f.redo[f.pos]) { f.asked++; if (f.ok) f.first++; }
+      var gain = f.ok ? (f.redo[f.pos] ? 5 : 10) : 0;
+      f.xp += gain;
+      render(); reward(f.ok, gain);
+    },
+    'i-mic': function () {
+      var f = U.flow; if (!DICT) return;
+      if (f.mic !== 'idle') { DICT.stop().catch(function () {}); return; }
+      f.micErr = null;
+      DICT.start({ language: 'en' }).catch(function (e) { f.micErr = e && e.code ? e.code : 'upstream_error'; if (f.micErr === 'stopped') f.micErr = null; render(); });
+    },
+    'i-typeit': function () { var f = U.flow; if (DICT && f.mic !== 'idle') { try { DICT.stop(); } catch (e) {} } f.typing = true; render(); var ta = document.getElementById('speak-type'); if (ta) ta.focus(); },
+    'i-retry': function () { var f = U.flow; f.checked = false; f.heard = ''; f.partial = ''; render(); },
+    'i-cant': function () { var f = U.flow; if (f.spoke == null) f.spoke = false; interNext(); },
+    said: function () { U.flow.said = true; render(); },
+    spoke: function (v) { var f = U.flow; f.spoke = v === '1'; if (!f.again) { S.resume = { no: f.no, i: f.i, said: true, spoke: f.spoke }; save(); } render(); },
+    finish: function () { var f = U.flow; if (f.again || rec(f.no)) return; completeLesson(f.no); f.i = STEPS.length - 1; go(); },
+    recall: function () { var items = todayRecalls(); if (!items.length) return; U.flow = { type: 'recall', items: items, i: 0, shown: false, ok: 0 }; go(); },
+    'r-show': function () { U.flow.shown = true; render(); var b = document.querySelector('[data-act="r-rate"][data-arg="1"]'); if (b) { try { b.focus({ preventScroll: true }); } catch (e) {} } },
+    'r-rate': function (v) { var f = U.flow, ok = v === '1'; answerRecall(f.items[f.i], ok); if (ok) f.ok++; f.i++; f.shown = false; go(); },
+    task: function (no) {
+      no = +no; var k = taskKey(no), c = S.tasks[k] || 0; if (c >= TT) return;
+      S.tasks[k] = c + 1; if (c + 1 === TT) addLog('task', { n: TT, no: no });
+      save(); render();
+    },
+    consent: function () { S.auth.consent = !S.auth.consent; save(); render(); },
+    logout: function () { S.auth.in = false; U.flow = null; U.tab = 'today'; save(); go(); },
+    'pin-reset': function () { var m = document.getElementById('pin-reset-msg'); if (m) m.hidden = false; },
+    sim: function () { S.dayOffset++; save(); render(); },
+    'reset-ask': function () { U.resetAsk = true; render(); },
+    'reset-no': function () { U.resetAsk = false; render(); },
+    'dbg-free': function () { S.debugFree = !S.debugFree; save(); render(); },
+    'dbg-learnall': function () { var d = today(); L.forEach(function (l) { if (!rec(l.no)) S.lessons[l.no] = { day: d, step: 0, due: d + RD[0], hold: false, hist: [], spoke: null }; }); save(); render(); },
+    'dbg-reset': function () { var keep = S.auth, ps = S.pilotStart; S = fresh(); S.auth = keep; S.pilotStart = ps; U.flow = null; save(); render(); },
+    'dbg-open': function (no) { no = +no; U.mode = 'app'; if (inter(no)) { startInter(no, true, 0); return; } U.flow = { type: 'lesson', no: no, i: 0, again: true, said: false, spoke: null }; go(); },
+    'reset-yes': function () { var keep = S.auth, ps = S.pilotStart; S = fresh(); S.auth = keep; S.pilotStart = ps; U.resetAsk = false; U.flow = null; save(); go(); },
+    person: function (k) { U.person = U.person === k ? null : k; fillPeople(); },
+    copy: function (id) {
+      var ta = document.getElementById(id), m = document.getElementById(id + '-msg');
+      function done(ok) { m.hidden = false; m.textContent = t(ok ? 'copied' : 'copy_fail'); if (!ok) { ta.focus(); ta.select(); } }
+      try { navigator.clipboard.writeText(ta.value).then(function () { done(true); }, function () { done(false); }); } catch (e) { done(false); }
+    }
+  };
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]');
+    if (!b || b.disabled) return;
+    var fn = A[b.dataset.act];
+    if (fn) fn(b.dataset.arg, b);
+  });
+  document.addEventListener('submit', function (e) { if (e.target.id === 'login-form') { e.preventDefault(); submitLogin(); } });
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'person-search') { U.q = e.target.value; fillPeople(); }
+    if (e.target.id === 'speak-type' && U.flow) { U.flow.heard = e.target.value; var b = document.querySelector('[data-act="i-check"]'); if (b) b.disabled = !e.target.value.trim(); }
+  });
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'pilot-start') return;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(e.target.value), d = m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) / 864e5 : NaN;
+    if (isFinite(d)) { S.pilotStart = d; U.pilotMsg = ''; } else { S.pilotStart = null; U.pilotMsg = t('pilot_bad'); }
+    save(); fillGroup();
+    var el = document.getElementById('pilot-start'); if (el) { try { el.focus({ preventScroll: true }); } catch (x) {} }
+  });
+
+  render();
+  cloudInit();
+})();
+</script>
+</body></html>
